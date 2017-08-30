@@ -8,7 +8,6 @@
  * for any support please contact yellowcube.ch
  */
 
-// YellowCube API namespaces
 use YellowCube\ART\Article;
 use YellowCube\ART\ChangeFlag;
 use YellowCube\ART\UnitsOfMeasure\ISO;
@@ -34,6 +33,7 @@ use YellowCube\WAB\OrderHeader;
 use YellowCube\WAB\Partner;
 use YellowCube\WAB\Doc;
 use YellowCube\Config;
+use YellowCube\Service;
 use YellowCube\WAB\Position;
 
 class WooYellowCube
@@ -59,7 +59,6 @@ class WooYellowCube
         }
 
         $this->languages();
-
     }
 
     /**
@@ -112,7 +111,7 @@ class WooYellowCube
         }
 
         // YellowCube SOAP configuration
-        $soap_config = new YellowCube\Config(get_option('wooyellowcube_setter'), $this->defaultWSDL, null, get_option('wooyellowcube_operatingMode'));
+        $soap_config = new Config(get_option('wooyellowcube_setter'), $this->defaultWSDL, null, get_option('wooyellowcube_operatingMode'));
 
         // YellowCube SOAP signature
         if (get_option('wooyellowcube_authentification')) {
@@ -121,7 +120,7 @@ class WooYellowCube
 
         // YellowCube API instanciation
         try {
-            $this->yellowcube = new YellowCube\Service($soap_config);
+            $this->yellowcube = new Service($soap_config);
             return true;
         } catch (Exception $e) {
             $this->log_create(0, 'INIT-ERROR', null, null, __('SOAP WSDL not reachable', 'wooyellowcube'));
@@ -310,21 +309,17 @@ class WooYellowCube
         // Update form has been submitted
         if (isset($_POST['wooyellowcube-settings'])) {
             // Update all WordPress options
-            update_option('wooyellowcube_setter', htmlspecialchars($_POST['setter']));
-            update_option('wooyellowcube_receiver', htmlspecialchars($_POST['receiver']));
-            update_option('wooyellowcube_depositorNo', htmlspecialchars($_POST['depositorNo']));
-            update_option('wooyellowcube_partnerNo', htmlspecialchars($_POST['partnerNo']));
-            update_option('wooyellowcube_plant', htmlspecialchars($_POST['plant']));
-            update_option('wooyellowcube_operatingMode', htmlspecialchars($_POST['operatingMode']));
-            update_option('wooyellowcube_authentification', htmlspecialchars($_POST['authentification']));
-            update_option('wooyellowcube_authentificationFile', htmlspecialchars($_POST['authentificationFile']));
-            update_option('wooyellowcube_cronDelay', htmlspecialchars($_POST['cronDelay']));
-            update_option('wooyellowcube_yellowcubeSOAPUrl', htmlspecialchars($_POST['yellowcubeSOAPUrl']));
-            update_option('wooyellowcube_email', htmlspecialchars($_POST['email']));
-            update_option('wooyellowcube_language', htmlspecialchars($_POST['language']));
-            update_option('wooyellowcube_activation', htmlspecialchars($_POST['activation']));
-            update_option('wooyellowcube_lotmanagement', htmlspecialchars($_POST['lotmanagement']));
-            update_option('wooyellowcube_logs', htmlspecialchars($_POST['logs_delete']));
+            $values_to_save = [
+                'setter', 'receiver', 'depositorNo', 'partnerNo', 'plant', 'operatingMode',
+                'authentification', 'authentificationFile', 'cronDelay', 'yellowcubeSOAPUrl',
+                'email', 'language', 'activation', 'lotmanagement', 'logs_delete',
+            ];
+
+            foreach ($values_to_save as $value_key) {
+                if (!empty($_POST[$value_key])) {
+                    update_option('wooyellowcube_' . $value_key, htmlspecialchars($_POST[$value_key]));
+                }
+            }
         }
 
         include_once 'views/menu-settings.php';
@@ -556,7 +551,7 @@ class WooYellowCube
     {
         $post_id = htmlspecialchars($_POST['post_id']); // Get post ID
         $lotmanagement = htmlspecialchars($_POST['lotmanagement']); // Get lot management
-        $variation = htmlspecialchars($_POST['variation']); // Get the information if the product is a variation
+        $variation = isset($_POST['variation']) ? htmlspecialchars($_POST['variation']) : false; // Get the information if the product is a variation
         $this->YellowCube_ART($post_id, 'insert', null, $lotmanagement, $variation); // Insert the product in YellowCube
         exit();
     }
@@ -568,7 +563,7 @@ class WooYellowCube
     {
         $post_id = htmlspecialchars($_POST['post_id']); // Get post ID
         $lotmanagement = htmlspecialchars($_POST['lotmanagement']); // Get lot management
-        $variation = htmlspecialchars($_POST['variation']); // Get the information if the product is a variation
+        $variation = isset($_POST['variation']) ? htmlspecialchars($_POST['variation']) : false; // Get the information if the product is a variation
         $this->YellowCube_ART($post_id, 'update', null, $lotmanagement, $variation); // Update the product in YellowCube
         exit();
     }
@@ -581,7 +576,7 @@ class WooYellowCube
     {
         // Get post ID
         $post_id = htmlspecialchars($_POST['post_id']);
-        $variation = htmlspecialchars($_POST['variation']); // Get the information if the product is a variation
+        $variation = isset($_POST['variation']) ? htmlspecialchars($_POST['variation']) : false; // Get the information if the product is a variation
         // Delete the product in YellowCube
         $this->YellowCube_ART($post_id, 'desactivate', 0, $variation);
         exit();
@@ -736,21 +731,21 @@ class WooYellowCube
             $volume = 1;
 
             // Set Length
-            if ($wc_product->length) {
-                $article->setLength(round(wc_get_dimension($wc_product->length, 'cm'), 3), ISO::CMT);
-                $volume = $volume * wc_get_dimension($wc_product->length, 'cm');
+            if ($length = $wc_product->get_length()) {
+                $article->setLength(round(wc_get_dimension($length, 'cm'), 3), ISO::CMT);
+                $volume = $volume * wc_get_dimension($length, 'cm');
             }
 
             // Set Width
-            if ($wc_product->width) {
-                $article->setWidth(round(wc_get_dimension($wc_product->width, 'cm'), 3), ISO::CMT);
-                $volume = $volume * wc_get_dimension($wc_product->width, 'cm');
+            if ($width = $wc_product->get_width()) {
+                $article->setWidth(round(wc_get_dimension($width, 'cm'), 3), ISO::CMT);
+                $volume = $volume * wc_get_dimension($width, 'cm');
             }
 
             // Set Height
-            if ($wc_product->height) {
-                $article->setHeight(round(wc_get_dimension($wc_product->height, 'cm'), 3), ISO::CMT);
-                $volume = $volume * wc_get_dimension($wc_product->height, 'cm');
+            if ($height = $wc_product->get_height()) {
+                $article->setHeight(round(wc_get_dimension($height, 'cm'), 3), ISO::CMT);
+                $volume = $volume * wc_get_dimension($height, 'cm');
             }
 
             // Set Volume
@@ -1496,7 +1491,7 @@ function wooyellowcube_install()
         `reference` int(11) DEFAULT NULL,
         `object` int(11) DEFAULT NULL,
         `message` mediumtext
-    ) ENGINE=InnoDB $charset_collate;" 
+    ) ENGINE=InnoDB $charset_collate;"
     );
 
     dbDelta(
@@ -1511,7 +1506,7 @@ function wooyellowcube_install()
         `yc_status_text` mediumtext NOT NULL,
         `yc_reference` int(11) NOT NULL,
         `yc_shipping` varchar(250) NOT NULL
-    ) ENGINE=InnoDB $charset_collate;" 
+    ) ENGINE=InnoDB $charset_collate;"
     );
 
     dbDelta(
@@ -1521,7 +1516,7 @@ function wooyellowcube_install()
         `product_no` varchar(250) NOT NULL,
         `product_lot` varchar(250) NOT NULL,
         `product_quantity` int(11) NOT NULL
-    ) ENGINE=InnoDB $charset_collate;" 
+    ) ENGINE=InnoDB $charset_collate;"
     );
 
     dbDelta(
@@ -1536,7 +1531,7 @@ function wooyellowcube_install()
         `yc_status_code` int(11) NOT NULL,
         `yc_status_text` mediumtext NOT NULL,
         `yc_reference` int(11) NOT NULL
-    ) ENGINE=InnoDB $charset_collate" 
+    ) ENGINE=InnoDB $charset_collate"
     );
 
     dbDelta(
@@ -1550,7 +1545,7 @@ function wooyellowcube_install()
         `yellowcube_articleno` varchar(250) DEFAULT NULL,
         `yellowcube_lot` varchar(250) DEFAULT NULL,
         `yellowcube_bestbeforedate` int(11) DEFAULT NULL
-    ) ENGINE=InnoDB $charset_collate" 
+    ) ENGINE=InnoDB $charset_collate"
     );
 
     dbDelta(
@@ -1560,7 +1555,7 @@ function wooyellowcube_install()
         `product_lot` varchar(250) NOT NULL,
         `product_quantity` int(11) NOT NULL,
         `product_expiration` int(11) NOT NULL
-    ) ENGINE=InnoDB AUTO_INCREMENT=33 $charset_collate" 
+    ) ENGINE=InnoDB AUTO_INCREMENT=33 $charset_collate"
     );
 
 }
