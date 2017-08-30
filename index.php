@@ -3,7 +3,7 @@
  * Plugin Name: WooYellowCube
  * Plugin URI: http://www.yellowcube.ch
  * Description: WooCommerce synchronization with YellowCube
- * Version: 2.5
+ * Version: 2.5.x-dev
  *
  * for any support please contact yellowcube.ch
  */
@@ -245,7 +245,7 @@ class WooYellowCube
     }
 
     /**
-     * Meta boxes management 
+     * Meta boxes management
      */
     public function meta_boxes()
     {
@@ -255,7 +255,7 @@ class WooYellowCube
     }
 
     /**
-     * Metabox : Order 
+     * Metabox : Order
      */
     public function meta_boxes_order($post)
     {
@@ -264,7 +264,7 @@ class WooYellowCube
     }
 
     /**
-     * Metabox : Product 
+     * Metabox : Product
      */
     public function meta_boxes_product($post)
     {
@@ -273,7 +273,7 @@ class WooYellowCube
     }
 
     /**
-     * Metabox : Track & Trace 
+     * Metabox : Track & Trace
      */
     public function meta_tracktrace($order)
     {
@@ -288,7 +288,7 @@ class WooYellowCube
     }
 
     /**
-     * Menu pages 
+     * Menu pages
      */
     public function menus()
     {
@@ -301,7 +301,7 @@ class WooYellowCube
     }
 
     /**
-     * Menu : Settings 
+     * Menu : Settings
      */
     public function menu_settings()
     {
@@ -331,7 +331,7 @@ class WooYellowCube
     }
 
     /**
-     * Menu : Shipping 
+     * Menu : Shipping
      */
     public function menu_shipping()
     {
@@ -359,7 +359,7 @@ class WooYellowCube
     }
 
     /**
-     * Menu : Stock 
+     * Menu : Stock
      */
     public function menu_stock()
     {
@@ -418,7 +418,7 @@ class WooYellowCube
     }
 
     /**
-     * Menu : Need help 
+     * Menu : Need help
      */
     public function menu_help()
     {
@@ -427,7 +427,7 @@ class WooYellowCube
     }
 
     /**
-     * Menu : Logs 
+     * Menu : Logs
      */
     public function menu_logs()
     {
@@ -436,7 +436,7 @@ class WooYellowCube
     }
 
     /**
-     * Order from WooCommerce 
+     * Order from WooCommerce
      */
     public function order($order_id)
     {
@@ -444,7 +444,7 @@ class WooYellowCube
     }
 
     /**
-     * Columns management 
+     * Columns management
      */
     public function columns()
     {
@@ -454,7 +454,7 @@ class WooYellowCube
     }
 
     /**
-     * Columns : Products 
+     * Columns : Products
      */
     public function columns_products($columns)
     {
@@ -464,7 +464,7 @@ class WooYellowCube
     }
 
     /**
-     * Columns : Orders 
+     * Columns : Orders
      */
     public function columns_orders($columns)
     {
@@ -474,7 +474,7 @@ class WooYellowCube
     }
 
     /**
-     * Columns : Content 
+     * Columns : Content
      */
     public function columns_content($column_name)
     {
@@ -482,7 +482,7 @@ class WooYellowCube
 
         switch ($column_name) {
             /**
- * Products status 
+ * Products status
 */
         case 'yellowcube_products':
             $product = $this->get_product_status($post->ID);
@@ -491,11 +491,11 @@ class WooYellowCube
             if ($product) {
                 // Display status
                 switch ($product->yc_response) {
-                case 0: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-error.png" alt="'.__('Error', 'wooyellowcube').'" /> '.__('Invalid ART', 'wooyellowcube'); 
+                case 0: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-error.png" alt="'.__('Error', 'wooyellowcube').'" /> '.__('Invalid ART', 'wooyellowcube');
                     break;
-                case 1: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-pending.png" alt="'.__('Pending', 'wooyellowcube').'" /> '.__('Waiting response', 'wooyellowcube'); 
+                case 1: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-pending.png" alt="'.__('Pending', 'wooyellowcube').'" /> '.__('Waiting response', 'wooyellowcube');
                     break;
-                case 2: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-success.png" alt="'.__('Success', 'wooyellowcube').'" /> '.__('Received', 'wooyellowcube'); 
+                case 2: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-success.png" alt="'.__('Success', 'wooyellowcube').'" /> '.__('Received', 'wooyellowcube');
                     break;
                 }
             } else {
@@ -505,7 +505,7 @@ class WooYellowCube
             break;
 
             /**
- * Orders status 
+ * Orders status
 */
         case 'yellowcube_orders':
             $order = $this->get_order_status($post->ID);
@@ -514,11 +514,11 @@ class WooYellowCube
             if ($order) {
                 // Display status
                 switch ($order->yc_response) {
-                case 0: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-error.png" alt="'.__('Error', 'wooyellowcube').'" /> '.__('Invalid order', 'wooyellowcube'); 
+                case 0: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-error.png" alt="'.__('Error', 'wooyellowcube').'" /> '.__('Invalid order', 'wooyellowcube');
                     break;
-                case 1: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-pending.png" alt="'.__('Pending', 'wooyellowcube').'" /> '.__('Waiting YellowCube response', 'wooyellowcube'); 
+                case 1: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-pending.png" alt="'.__('Pending', 'wooyellowcube').'" /> '.__('Waiting YellowCube response', 'wooyellowcube');
                     break;
-                case 2: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-success.png" alt="'.__('Success', 'wooyellowcube').'" /> '.__('Order sent by YellowCube', 'wooyellowcube'); 
+                case 2: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-success.png" alt="'.__('Success', 'wooyellowcube').'" /> '.__('Order sent by YellowCube', 'wooyellowcube');
                     break;
                 }
             } else {
@@ -530,7 +530,7 @@ class WooYellowCube
     }
 
     /**
-     * Ajax calls 
+     * Ajax calls
      */
     public function ajax()
     {
@@ -542,7 +542,7 @@ class WooYellowCube
     }
 
     /**
-     * Add ajax URL to header 
+     * Add ajax URL to header
      */
     public function ajax_head()
     {
@@ -550,7 +550,7 @@ class WooYellowCube
     }
 
     /**
-     * Ajax - Product - Send 
+     * Ajax - Product - Send
      */
     public function ajax_product_send()
     {
@@ -562,7 +562,7 @@ class WooYellowCube
     }
 
     /**
-     * Ajax - Product - Update 
+     * Ajax - Product - Update
      */
     public function ajax_product_update()
     {
@@ -575,7 +575,7 @@ class WooYellowCube
 
 
     /**
-     * Ajax - Product - Remove 
+     * Ajax - Product - Remove
      */
     public function ajax_product_desactivate()
     {
@@ -588,7 +588,7 @@ class WooYellowCube
     }
 
     /**
-     * Ajax - Product - Refresh 
+     * Ajax - Product - Refresh
      */
     public function ajax_product_refresh()
     {
@@ -599,7 +599,7 @@ class WooYellowCube
     }
 
     /**
-     * Ajax - Order - Send 
+     * Ajax - Order - Send
      */
     public function ajax_order_send()
     {
@@ -611,7 +611,7 @@ class WooYellowCube
     }
 
     /**
-     * Ajax - Order - Again 
+     * Ajax - Order - Again
      */
     public function ajax_order_again()
     {
@@ -622,7 +622,7 @@ class WooYellowCube
     }
 
     /**
-     * Ajax - Order - Refresh 
+     * Ajax - Order - Refresh
      */
     public function ajax_order_refresh()
     {
@@ -633,7 +633,7 @@ class WooYellowCube
     }
 
     /**
-     * Notice : Update the plugin 
+     * Notice : Update the plugin
      */
     public function notice_update()
     {
@@ -695,13 +695,13 @@ class WooYellowCube
 
             // Validate type
             switch ($type) {
-            case 'insert': $type = 'INSERT'; $article->setChangeFlag(ChangeFlag::INSERT); 
+            case 'insert': $type = 'INSERT'; $article->setChangeFlag(ChangeFlag::INSERT);
                 break;
-            case 'update': $type = 'UPDATE'; $article->setChangeFlag(ChangeFlag::UPDATE); 
+            case 'update': $type = 'UPDATE'; $article->setChangeFlag(ChangeFlag::UPDATE);
                 break;
-            case 'desactivate': $type = 'DESACTIVATE'; $article->setChangeFlag(ChangeFlag::DEACTIVATE); 
+            case 'desactivate': $type = 'DESACTIVATE'; $article->setChangeFlag(ChangeFlag::DEACTIVATE);
                 break;
-            default: $type = 'INSERT'; $article->setChangeFlag(ChangeFlag::INSERT); 
+            default: $type = 'INSERT'; $article->setChangeFlag(ChangeFlag::INSERT);
                 break;
             }
 
@@ -875,13 +875,13 @@ class WooYellowCube
         $shipping_saved_methods = unserialize(get_option('wooyellowcube_shipping_methods'));
 
         switch ($shipping_saved_methods[$shippingMethodIdentifier]['basic']) {
-        case 'ECO': $shippingMethods['main'] = new BasicShippingServices(BasicShippingServices::ECO); 
+        case 'ECO': $shippingMethods['main'] = new BasicShippingServices(BasicShippingServices::ECO);
             break;
-        case 'PRI': $shippingMethods['main'] = new BasicShippingServices(BasicShippingServices::PRI); 
+        case 'PRI': $shippingMethods['main'] = new BasicShippingServices(BasicShippingServices::PRI);
             break;
-        case 'PICKUP': $shippingMethods['main'] = new BasicShippingServices(BasicShippingServices::PICKUP); 
+        case 'PICKUP': $shippingMethods['main'] = new BasicShippingServices(BasicShippingServices::PICKUP);
             break;
-        default: $shippingMethods['main'] = new BasicShippingServices(BasicShippingServices::ECO); 
+        default: $shippingMethods['main'] = new BasicShippingServices(BasicShippingServices::ECO);
             break;
         }
 
@@ -1101,7 +1101,7 @@ class WooYellowCube
     }
 
     /**
-     * Get product status 
+     * Get product status
      */
     public function get_product_status($product_id)
     {
@@ -1110,7 +1110,7 @@ class WooYellowCube
     }
 
     /**
-     * Get order status 
+     * Get order status
      */
     public function get_order_status($order_id)
     {
@@ -1119,7 +1119,7 @@ class WooYellowCube
     }
 
     /**
-     * Get product object by SKU 
+     * Get product object by SKU
      */
     public function get_product_by_sku($sku)
     {
@@ -1134,7 +1134,7 @@ class WooYellowCube
     }
 
     /**
-     * CRON management : Response 
+     * CRON management : Response
      */
     public function crons_responses()
     {
@@ -1238,7 +1238,7 @@ class WooYellowCube
     }
 
     /**
-     * CRON management : Daily 
+     * CRON management : Daily
      */
     public function crons_daily()
     {
@@ -1368,7 +1368,7 @@ class WooYellowCube
     }
 
     /**
-     * CRON - Hourly 
+     * CRON - Hourly
      */
 
     public function crons_hourly()
@@ -1474,4 +1474,96 @@ function wooyellowcube_init()
     $wooyellowcube = new WooYellowCube();
 }
 
+/**
+ * Install callback for the WooYellowcube plugin.
+ *
+ * Creates necessary database tables.
+ *
+ * @since 2.5.1
+ */
+function wooyellowcube_install()
+{
+    include_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    global $wpdb;
+    $charset_collate = $wpdb->get_charset_collate();
+
+    dbDelta(
+        "CREATE TABLE `wooyellowcube_logs` (
+        `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        `created_at` int(11) NOT NULL,
+        `type` varchar(250) NOT NULL,
+        `response` int(11) DEFAULT NULL,
+        `reference` int(11) DEFAULT NULL,
+        `object` int(11) DEFAULT NULL,
+        `message` mediumtext
+    ) ENGINE=InnoDB $charset_collate;" 
+    );
+
+    dbDelta(
+        "CREATE TABLE `wooyellowcube_orders` (
+        `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        `id_order` int(11) NOT NULL UNIQUE,
+        `created_at` int(11) NOT NULL,
+        `status` tinyint(4) NOT NULL,
+        `pdf_file` varchar(250) NOT NULL,
+        `yc_response` int(11) NOT NULL,
+        `yc_status_code` int(11) NOT NULL,
+        `yc_status_text` mediumtext NOT NULL,
+        `yc_reference` int(11) NOT NULL,
+        `yc_shipping` varchar(250) NOT NULL
+    ) ENGINE=InnoDB $charset_collate;" 
+    );
+
+    dbDelta(
+        "CREATE TABLE `wooyellowcube_orders_lots` (
+        `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        `id_order` int(11) NOT NULL,
+        `product_no` varchar(250) NOT NULL,
+        `product_lot` varchar(250) NOT NULL,
+        `product_quantity` int(11) NOT NULL
+    ) ENGINE=InnoDB $charset_collate;" 
+    );
+
+    dbDelta(
+        "CREATE TABLE `wooyellowcube_products` (
+        `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        `id_product` int(11) NOT NULL UNIQUE,
+        `id_variation` int(11) NOT NULL,
+        `created_at` int(11) NOT NULL,
+        `status` tinyint(4) NOT NULL,
+        `lotmanagement` tinyint(1) NOT NULL,
+        `yc_response` int(11) NOT NULL,
+        `yc_status_code` int(11) NOT NULL,
+        `yc_status_text` mediumtext NOT NULL,
+        `yc_reference` int(11) NOT NULL
+    ) ENGINE=InnoDB $charset_collate" 
+    );
+
+    dbDelta(
+        "CREATE TABLE `wooyellowcube_stock` (
+        `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        `product_id` int(11) DEFAULT NULL,
+        `product_name` varchar(250) NOT NULL,
+        `woocommerce_stock` int(11) DEFAULT NULL,
+        `yellowcube_stock` int(11) NOT NULL,
+        `yellowcube_date` int(11) DEFAULT NULL,
+        `yellowcube_articleno` varchar(250) DEFAULT NULL,
+        `yellowcube_lot` varchar(250) DEFAULT NULL,
+        `yellowcube_bestbeforedate` int(11) DEFAULT NULL
+    ) ENGINE=InnoDB $charset_collate" 
+    );
+
+    dbDelta(
+        "CREATE TABLE `wooyellowcube_stock_lots` (
+        `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        `id_product` int(11) NOT NULL,
+        `product_lot` varchar(250) NOT NULL,
+        `product_quantity` int(11) NOT NULL,
+        `product_expiration` int(11) NOT NULL
+    ) ENGINE=InnoDB AUTO_INCREMENT=33 $charset_collate" 
+    );
+
+}
+
 add_action('init', 'wooyellowcube_init');
+register_activation_hook(__FILE__, 'wooyellowcube_install');
