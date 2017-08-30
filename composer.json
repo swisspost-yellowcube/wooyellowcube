@@ -1,5 +1,8 @@
 {
     "require": {
         "swisspost-yellowcube/yellowcube-php": "^2.0"
+    },
+    "require-dev": {
+        "wp-coding-standards/wpcs": "^0.13.1"
     }
 }

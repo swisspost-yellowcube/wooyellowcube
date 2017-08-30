@@ -25,7 +25,7 @@ global $wpdb;
 // Get last 20 activities from database
 $yellowcube_activities = $wpdb->get_results('SELECT * FROM wooyellowcube_logs ORDER BY created_at DESC LIMIT 0, 600');
 
-if(count($yellowcube_activities) == 0): ?>
+if(count($yellowcube_activities) == 0) : ?>
 <p>They is currently no recent activities</p>
 <?php else: ?>
 <div style="overflow-y: scroll; width: 100%; height: 890px">
@@ -46,22 +46,22 @@ if(count($yellowcube_activities) == 0): ?>
         <td><?php echo $activity->reference; ?></td>
         <td><?php echo $activity->type; ?></td>
         <td>
-					<?php if(strpos($activity->type, 'ART') !== false): ?>
-						<?php
-						$wc_product = new WC_Product((int)$activity->object);
+        <?php if(strpos($activity->type, 'ART') !== false) : ?>
+        <?php
+        $wc_product = new WC_Product((int)$activity->object);
 
-						if($wc_product){
-							echo $wc_product->get_sku();
-						}else{
-							echo $activity->object;
-						}
-						?>
-					<?php else: ?>
-						#<?php echo $activity->object; ?>
-					<?php endif; ?>
-				</td>
+        if($wc_product) {
+            echo $wc_product->get_sku();
+        }else{
+            echo $activity->object;
+        }
+        ?>
+        <?php else: ?>
+                        #<?php echo $activity->object; ?>
+        <?php endif; ?>
+                </td>
         <td>
-          <?php echo $activity->message; ?>
+            <?php echo $activity->message; ?>
         </td>
       </tr>
     <?php endforeach; ?>
