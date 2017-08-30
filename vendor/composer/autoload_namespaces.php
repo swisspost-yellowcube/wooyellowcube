@@ -7,6 +7,4 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Wse' => array($vendorDir . '/course-hero/wse-php/src'),
-    'Psr\\Log\\' => array($vendorDir . '/psr/log'),
-    'Assert' => array($vendorDir . '/beberlei/assert/lib'),
 );

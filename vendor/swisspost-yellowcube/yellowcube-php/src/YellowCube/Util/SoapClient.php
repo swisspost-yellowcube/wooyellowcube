@@ -3,7 +3,6 @@
 namespace YellowCube\Util;
 
 use Psr\Log\LoggerInterface;
-use Wse\WSASoap;
 use Wse\WSSESoap;
 use Wse\XMLSecurityKey;
 
@@ -12,12 +11,12 @@ use Wse\XMLSecurityKey;
  *
  * Also adds better error formatting.
  *
- * @method \YellowCube\GEN_Response InsertArticleMasterData(\YellowCube\ART\Article $article) {}
- * @method GetInsertArticleMasterDataStatus()
- * @method CreateYCCustomerOrder()
- * @method GetYCCustomerOrderStatus()
- * @method GetYCCustomerOrderReply()
- * @method GetInventory()
+ * @method \YellowCube\GEN_Response InsertArticleMasterData(\YellowCube\ART\Article $article)
+ * @method \YellowCube\GEN_Response GetInsertArticleMasterDataStatus()
+ * @method \YellowCube\GEN_Response CreateYCCustomerOrder()
+ * @method \YellowCube\GEN_Response GetYCCustomerOrderStatus()
+ * @method \YellowCube\GEN_Response GetYCCustomerOrderReply()
+ * @method \YellowCube\GEN_Response GetInventory()
  * @package YellowCube\Util
  */
 class SoapClient extends \SoapClient
@@ -75,7 +74,7 @@ class SoapClient extends \SoapClient
     /**
      * @inheritdoc
      */
-    public function __doRequest($request, $location, $action, $version, $oneWay = NULL)
+    public function __doRequest($request, $location, $action, $version, $oneWay = null)
     {
         if ($this->useCertificate()) {
             $request = $this->signRequest($request);
@@ -151,7 +150,8 @@ class SoapClient extends \SoapClient
      *
      * @return mixed
      */
-    protected function useCertificate() {
+    protected function useCertificate()
+    {
         return !empty($this->options['local_cert']);
     }
 
@@ -160,7 +160,8 @@ class SoapClient extends \SoapClient
      *
      * @return string Content of the certificate passed  in 'local_cert'.
      */
-    protected function getCertificateContent() {
+    protected function getCertificateContent()
+    {
         if (empty($this->certificateContent)) {
             $this->certificateContent = file_get_contents($this->options['local_cert']);
         }

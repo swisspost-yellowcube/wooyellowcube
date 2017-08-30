@@ -1,0 +1,15 @@
+# Managed by Composer
+/vendor/
+/bin/
+composer.lock
+
+# PHPUnit
+phpunit.xml
+
+# Editors
+.idea
+**.orig
+
+# Docs
+.dexy
+docs/output-site

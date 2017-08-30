@@ -1,0 +1,31 @@
+language: php
+php:
+  - 5.6
+  - 7.0
+  - 7.1
+
+sudo: false
+
+cache:
+  directories:
+    - vendor
+    - $HOME/.composer/cache
+    - $HOME/.cache
+    - $HOME/.local
+
+before_script:
+  - composer update --prefer-dist
+
+script:
+  - vendor/phpspec/phpspec/bin/phpspec run
+
+after_success:
+  - git diff --name-only HEAD~1 docs | grep . && cd docs && bash ./bin/generate.sh
+
+env:
+  global:
+    - secure: "oEnjQQc4E5fjIgAGCqVLRzyl5dula/dX5VMwwuKdlwZuzSa0lBp87R2i1pQTPub60XaxeKRkJoOfe/z2ULdQLRVbLnY+UcHt4h/T7EoebvffbKKv8Zv3NBqEV4oDVHiMUXauGYwi9riLxsgyUri62n1NCEhCp/imb1LE4pfT6Ao="
+
+notifications:
+  email: false
+

@@ -51,10 +51,17 @@ class ConfigSpec extends ObjectBehavior
 
     function it_asserts_soapclientoptions_is_an_array()
     {
-        $this->shouldThrow('PhpSpec\Exception\Example\ErrorException')->during(
-            '__construct',
-            array('sender', 'wsdl', null, 'false', '')
-        );
+        if (PHP_MAJOR_VERSION >= 7) {
+            $this->shouldThrow('\TypeError')->during(
+                '__construct',
+                array('sender', 'wsdl', null, 'false', '')
+            );
+        } else {
+            $this->shouldThrow('PhpSpec\Exception\Example\ErrorException')->during(
+                '__construct',
+                array('sender', 'wsdl', null, 'false', '')
+            );
+        }
     }
 
     function it_asserts_a_receiver_is_given()
@@ -80,16 +87,19 @@ class ConfigSpec extends ObjectBehavior
         $this->getWSDL()->shouldReturn(Config::WSDL_TEST);
     }
 
-    function it_does_not_allow_empty_certificate() {
+    function it_does_not_allow_empty_certificate()
+    {
         $this->shouldThrow('InvalidArgumentException')->during('setCertificateFilePath', array(''));
     }
 
-    function it_sets_certificate_without_passphrase() {
+    function it_sets_certificate_without_passphrase()
+    {
         $this->setCertificateFilePath($this->certFilePath);
         $this->getCertificateFilePath()->shouldReturn($this->certFilePath);
     }
 
-    function it_sets_certificate_with_passphrase() {
+    function it_sets_certificate_with_passphrase()
+    {
         $this->setCertificateFilePath($this->certFilePath, 'pass-phrase');
         $this->getCertificateFilePath()->shouldReturn($this->certFilePath);
         $this->getCertificatePassphrase()->shouldReturn('pass-phrase');

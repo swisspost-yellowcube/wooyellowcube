@@ -7,4 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'YellowCube\\' => array($vendorDir . '/swisspost-yellowcube/yellowcube-php/src/YellowCube'),
+    'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
+    'Assert\\' => array($vendorDir . '/beberlei/assert/lib/Assert'),
 );

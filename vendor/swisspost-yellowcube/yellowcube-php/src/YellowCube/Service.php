@@ -140,33 +140,12 @@ class Service
         }
 
         return array_map(
-            function($goodsIssue) {
+            function ($goodsIssue) {
                 return $goodsIssue->GoodsIssue;
             },
             $WAR->WAR
         );
     }
-    
-    public function getYCCustomerOrderTestReply($reference)
-    {
-        $this->logger->info(__METHOD__);
-
-        $WAR = $this->getClient()->GetYCCustomerOrderReply(array(
-            'ControlReference' => ControlReference::fromConfig('WAR', $this->getConfig()),
-            'CustomerOrderNo' => $reference
-        ));
-
-        if (empty($WAR->WAR)) {
-            return array();
-        }
-
-        return array_map(
-            function($goodsIssue) {
-                return $goodsIssue->GoodsIssue;
-            },
-            $WAR->WAR
-        );
-    }    
 
     /**
      * Returns the current status of a customer order specified by its reference.
@@ -213,9 +192,9 @@ class Service
     {
         if (empty($this->client)) {
             $this->client = new SoapClient(
-              $this->getConfig()->getWsdl(),
-              $this->getConfig()->getSoapClientOptions(),
-              $this->logger
+                $this->getConfig()->getWsdl(),
+                $this->getConfig()->getSoapClientOptions(),
+                $this->logger
             );
         }
 

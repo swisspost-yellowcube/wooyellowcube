@@ -6,12 +6,13 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Log\LoggerInterface;
 use YellowCube\ART\Article;
-use YellowCube\WAB\Order;
 use YellowCube\Util\SoapClient;
+use YellowCube\WAB\Order;
 
 class ServiceSpec extends ObjectBehavior
 {
-    function let(SoapClient $client, LoggerInterface $logger) {
+    function let(SoapClient $client, LoggerInterface $logger)
+    {
         $this->beConstructedWith(null, $client, $logger);
     }
 
@@ -22,19 +23,24 @@ class ServiceSpec extends ObjectBehavior
 
     function it_asserts_config_is_given()
     {
-        $this->shouldThrow('PhpSpec\Exception\Example\ErrorException')->during('__construct', array(''));
+        if (PHP_MAJOR_VERSION >= 7) {
+            $this->shouldThrow('\TypeError')->during('__construct', array(''));
+        } else {
+            $this->shouldThrow('PhpSpec\Exception\Example\ErrorException')->during('__construct', array(''));
+        }
     }
 
-    function it_should_insert_article(Article $article, $client, $logger) {
+    function it_should_insert_article(Article $article, $client, $logger)
+    {
         $this->insertArticleMasterData($article);
-
         $client->InsertArticleMasterData(
             Argument::withEntry('ControlReference', Argument::type('YellowCube\ControlReference'))
         )->shouldHaveBeenCalled();
         $logger->info(Argument::any(), Argument::any())->shouldHaveBeenCalled();
     }
 
-    function it_should_return_article_status($client, $logger) {
+    function it_should_return_article_status($client, $logger)
+    {
         $this->getInsertArticleMasterDataStatus('reference-no');
 
         $client->GetInsertArticleMasterDataStatus(Argument::allOf(
@@ -44,7 +50,8 @@ class ServiceSpec extends ObjectBehavior
         $logger->info(Argument::any(), Argument::any())->shouldHaveBeenCalled();
     }
 
-    function it_should_create_customer_order(Order $order, $client, $logger) {
+    function it_should_create_customer_order(Order $order, $client, $logger)
+    {
         $this->createYCCustomerOrder($order);
 
         $client->CreateYCCustomerOrder(Argument::allOf(
@@ -54,7 +61,8 @@ class ServiceSpec extends ObjectBehavior
         $logger->info(Argument::type('string'), Argument::any())->shouldHaveBeenCalled();
     }
 
-    function it_should_return_order_status($client, $logger) {
+    function it_should_return_order_status($client, $logger)
+    {
         $this->getYCCustomerOrderStatus('reference-no');
 
         $client->GetYCCustomerOrderStatus(Argument::allOf(
@@ -64,7 +72,8 @@ class ServiceSpec extends ObjectBehavior
         $logger->info(Argument::any(), Argument::any())->shouldHaveBeenCalled();
     }
 
-    function it_should_return_order_replies($client, $logger) {
+    function it_should_return_order_replies($client, $logger)
+    {
         $this->getYCCustomerOrderReply()->shouldReturn(array());
 
         $client->GetYCCustomerOrderReply(Argument::allOf(
@@ -73,7 +82,8 @@ class ServiceSpec extends ObjectBehavior
         $logger->info(Argument::type('string'), Argument::any())->shouldHaveBeenCalled();
     }
 
-    function it_should_return_inventory($client, $logger) {
+    function it_should_return_inventory($client, $logger)
+    {
         $this->getInventory()->shouldReturn(array());
 
         $client->GetInventory(Argument::allOf(
@@ -82,4 +92,3 @@ class ServiceSpec extends ObjectBehavior
         $logger->info(Argument::type('string'), Argument::any())->shouldHaveBeenCalled();
     }
 }
-
