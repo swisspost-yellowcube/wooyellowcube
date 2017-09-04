@@ -149,7 +149,7 @@ class WooYellowCube
                     $order_number = $order_object->get_order_number();
                     $order_final = (trim($order_number) == '') ? $order_id : $order_number;
 
-                    $replies = $this->yellowcube->getYCCustomerOrderTestReply($order_object->get_order_number());
+                    $replies = $this->yellowcube->getYCCustomerOrderReply($order_object->get_order_number());
 
                     foreach ($replies as $reply) {
                         $header = $reply->getCustomerOrderHeader();
