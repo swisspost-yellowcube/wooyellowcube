@@ -217,7 +217,7 @@ class WooYellowCube
         $order_id = $order->id;
         $getOrderFromYellowCube = $wpdb->get_row('SELECT * FROM wooyellowcube_orders WHERE id_order='.$order_id);
 
-        if ($getOrderFromYellowCube->yc_shipping) {
+        if (!empty($getOrderFromYellowCube->yc_shipping)) {
             echo '<p>Track & Trace : http://www.post.ch/swisspost-tracking?p_language=en&formattedParcelCodes='.$getOrderFromYellowCube->yc_shipping.'</p>';
         }
     }
