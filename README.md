@@ -5,6 +5,10 @@ Swiss Post offers an all-in logistics solution for distance selling with YellowC
 
 Requirements: WooCommerce 3.5+, PHP 7
 
+## Documentation
+
+[Official documentation](https://swisspost-yellowcube.github.io/wooyellowcube-docs/). Documentation is publicly maintained and improved. We encourage you [to submit changes](https://github.com/swisspost-yellowcube/wooyellowcube-docs/pull/new/master) or [report issues](https://github.com/swisspost-yellowcube/wooyellowcube-docs/issues/new) if you notice and errors or inconsistencies.
+
 ## Crons
 ### WordPress based
 There is 3 crons that are executed by used timestamp difference. Theses crons need to got a frontend or backend visit to be triggered.
