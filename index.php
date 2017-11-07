@@ -1062,7 +1062,6 @@ class WooYellowCube
                                         'yc_reference' => $yellowcubeWABRequest->getReference()
                                     )
                                 );
-                                $wcOrder->update_status('completed', __('The order has been sent to YellowCube', 'wooyellowcube'));
                                 $this->log_create(1, 'WAB-DELIVERY ORDER', $yellowcubeWABRequest->getReference(), $order_id, 'WAB Request has been sent');
                             } else {
                                 $orderIdentificationArchive = $this->alreadySentYellowCube($order_id);
@@ -1220,6 +1219,7 @@ class WooYellowCube
                             )
                         );
 
+                        wc_get_order($execution->id_order)->update_status('failed', $e->getMessage());
                         $this->log_create(0, 'WAB-REFUSED', $execution->id_order, $execution->id_order, $response->getStatusText());
                     }
                 }
