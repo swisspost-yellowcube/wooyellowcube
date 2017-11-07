@@ -214,7 +214,7 @@ class WooYellowCube
     {
         global $wpdb;
 
-        $order_id = $order->id;
+        $order_id = $order->get_id();
         $getOrderFromYellowCube = $wpdb->get_row('SELECT * FROM wooyellowcube_orders WHERE id_order='.$order_id);
 
         if (!empty($getOrderFromYellowCube->yc_shipping)) {
@@ -278,7 +278,7 @@ class WooYellowCube
     {
         global $wpdb;
         // Get shipping postal no
-        $shipping = $wpdb->get_row('SELECT * FROM wooyellowcube_orders WHERE id_order=\''.$order->id.'\'');
+        $shipping = $wpdb->get_row('SELECT * FROM wooyellowcube_orders WHERE id_order=\''.$order->get_id().'\'');
 
         // If we have it, display the track & trace
         if ($shipping && trim($shipping->yc_shipping) != '') {
