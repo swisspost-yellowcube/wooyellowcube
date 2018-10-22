@@ -35,7 +35,7 @@ $yellowcube_product = $wpdb->get_row('SELECT * FROM wooyellowcube_products WHERE
             <p><label for="lotmanagement"><strong><?php _e('Do you want to enable lot management for this product ?'); ?></strong></label></p>
             <p>
                 <select name="lotmanagement" id="lotmanagement">
-                    <option value="0"><?php _e('Lot management is desactivated', 'wooyellowcube');?></option>
+                    <option value="0"><?php _e('Lot management is deactivated', 'wooyellowcube');?></option>
                     <option value="1"><?php _e('Lot management is activated', 'wooyellowcube');?></option>
                 </select>
             </p>
@@ -51,7 +51,7 @@ $yellowcube_product = $wpdb->get_row('SELECT * FROM wooyellowcube_products WHERE
             <p><label for="lotmanagement"><?php _e('<strong>Is your product using lot management?</strong>', 'wooyellowcube'); ?></label></p>
             <p>
                 <select name="lotmanagement" id="lotmanagement">
-                    <option value="0" <?php if($yellowcube_product->lotmanagement == '0')  echo 'selected="selected"'; ?>><?php _e('Lot management is desactivated', 'wooyellowcube'); ?></option>
+                    <option value="0" <?php if($yellowcube_product->lotmanagement == '0')  echo 'selected="selected"'; ?>><?php _e('Lot management is deactivated', 'wooyellowcube'); ?></option>
                     <option value="1" <?php if($yellowcube_product->lotmanagement == '1') echo 'selected="selected"'; ?>><?php _e('Lot management is activated', 'wooyellowcube'); ?></option>
                 </select>
             </p>
@@ -62,7 +62,7 @@ $yellowcube_product = $wpdb->get_row('SELECT * FROM wooyellowcube_products WHERE
         <hr />
         <div>
           <h3><?php _e('Unlink the liaison with YellowCube', 'wooyellowcube'); ?></h3>
-          <p><?php _e('Your product will be desactivated in YellowCube', 'wooyellowcube'); ?></p>
+          <p><?php _e('Your product will be deactivated in YellowCube', 'wooyellowcube'); ?></p>
           <p><a href="#" onclick="return false;" class="button" id="wooyellowcube-product-remove"><?php _e('Remove the link with YellowCube', 'wooyellowcube'); ?></a></p>
         </div>
         <?php endif; ?>
@@ -111,7 +111,7 @@ $yellowcube_product = $wpdb->get_row('SELECT * FROM wooyellowcube_products WHERE
                 <button onclick="return false;" class="button <?php if(!$button_disable): ?>wooyellowcube-product-variation-update<?php endif; ?>" <?php if($button_disable) echo 'disabled="disabled"'; ?>><?php _e('Update', 'wooyellowcube'); ?></button>
                 <input type="hidden" class="wooyellowcube-product-variation-id" value="<?php echo $variation_id?>" />
 
-                <a href="#" onclick="return false;" class="button <?php if(!$button_disable): ?>wooyellowcube-product-variation-desactivate<?php endif; ?>" <?php if($button_disable) echo 'disabled="disabled"'; ?>><?php _e('Desactivate', 'wooyellowcube');?></a>
+                <a href="#" onclick="return false;" class="button <?php if(!$button_disable): ?>wooyellowcube-product-variation-desactivate<?php endif; ?>" <?php if($button_disable) echo 'disabled="disabled"'; ?>><?php _e('Deactivate', 'wooyellowcube');?></a>
                 <input type="hidden" class="wooyellowcube-product-variation-id" value="<?php echo $variation_id?>" />
               <?php else: ?>
                 <a href="#" onclick="return false;" class="button <?php if(!$button_disable): ?>wooyellowcube-product-variation-send<?php endif; ?>" <?php if($button_disable) echo 'disabled="disabled"'; ?>><?php _e('Insert', 'wooyellowcube'); ?></a>

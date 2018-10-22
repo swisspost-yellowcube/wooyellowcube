@@ -578,7 +578,7 @@ class WooYellowCube
         $post_id = htmlspecialchars($_POST['post_id']);
         $variation = isset($_POST['variation']) ? htmlspecialchars($_POST['variation']) : false; // Get the information if the product is a variation
         // Delete the product in YellowCube
-        $this->YellowCube_ART($post_id, 'desactivate', 0, $variation);
+        $this->YellowCube_ART($post_id, 'deactivate', 0, $variation);
         exit();
     }
 
@@ -694,7 +694,7 @@ class WooYellowCube
                 break;
             case 'update': $type = 'UPDATE'; $article->setChangeFlag(ChangeFlag::UPDATE);
                 break;
-            case 'desactivate': $type = 'DESACTIVATE'; $article->setChangeFlag(ChangeFlag::DEACTIVATE);
+            case 'deactivate': $type = 'DEACTIVATE'; $article->setChangeFlag(ChangeFlag::DEACTIVATE);
                 break;
             default: $type = 'INSERT'; $article->setChangeFlag(ChangeFlag::INSERT);
                 break;
@@ -801,8 +801,8 @@ class WooYellowCube
                 );
             }
 
-            // Desactivate a product to YellowCube
-            if ($type == 'DESACTIVATE') {
+            // Deactivate a product to YellowCube
+            if ($type == 'DEACTIVATE') {
                 // Be sure that they is no error before deleting
                 if ($response_status != 0) {
                     $wpdb->delete(

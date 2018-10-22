@@ -75,7 +75,7 @@
   <p>
 	  <label for="lotmanagement"><?php _e('Lot management', 'wooyellowcube'); ?></label>
 	  <select name="lotmanagement" id="lotmanagement">
-		  <option value="0" <?php if(get_option('wooyellowcube_lotmanagement') == 0) echo 'selected="selected"'; ?>><?php _e('Desactivated', 'wooyellowcube'); ?></option>
+		  <option value="0" <?php if(get_option('wooyellowcube_lotmanagement') == 0) echo 'selected="selected"'; ?>><?php _e('Deactivated', 'wooyellowcube'); ?></option>
 		  <option value="1" <?php if(get_option('wooyellowcube_lotmanagement') == 1) echo 'selected="selected"'; ?>><?php _e('Activated', 'wooyellowcube'); ?></option>
 	  </select>
   </p>

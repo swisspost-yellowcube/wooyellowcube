@@ -60,7 +60,7 @@ if(is_array($shippingZones)){
                                 <td  width="400"><?=$method->title?></td>
                                 <td>
                                     <select name="shippingStatus" id="shippingStatus" style="width: 100%;">
-                                        <option value="0" <?php if(isset($yellowcubeShippingMethods[$method->instance_id]) && $yellowcubeShippingMethods[$method->instance_id]['status'] == 0) echo 'selected="selected"'; ?>>Desactivated</option>
+                                        <option value="0" <?php if(isset($yellowcubeShippingMethods[$method->instance_id]) && $yellowcubeShippingMethods[$method->instance_id]['status'] == 0) echo 'selected="selected"'; ?>>Deactivated</option>
                                         <option value="1" <?php if(isset($yellowcubeShippingMethods[$method->instance_id]) && $yellowcubeShippingMethods[$method->instance_id]['status'] == 1) echo 'selected="selected"'; ?>>Activated</option>
                                     </select>
                                 </td>
@@ -126,7 +126,7 @@ echo '<h2>'.$defaultZoneDatas['zone_name'].'</h2>';
                 <td width="400"><?=$method->title?></td>
                 <td>
                     <select name="shippingStatus" id="shippingStatus" style="width: 100%;">
-                        <option value="0" <?php if(isset($yellowcubeShippingMethods[$method->instance_id]) && $yellowcubeShippingMethods[$method->instance_id]['status'] == 0) echo 'selected="selected"'; ?>>Desactivated</option>
+                        <option value="0" <?php if(isset($yellowcubeShippingMethods[$method->instance_id]) && $yellowcubeShippingMethods[$method->instance_id]['status'] == 0) echo 'selected="selected"'; ?>>Deactivated</option>
                         <option value="1" <?php if(isset($yellowcubeShippingMethods[$method->instance_id]) && $yellowcubeShippingMethods[$method->instance_id]['status'] == 1) echo 'selected="selected"'; ?>>Activated</option>
                     </select>
                 </td>

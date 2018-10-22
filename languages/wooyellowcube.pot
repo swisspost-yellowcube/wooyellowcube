@@ -203,7 +203,7 @@ msgid "Lot management"
 msgstr ""
 
 #: views/menu-settings.php:97
-msgid "Desactivated"
+msgid "Deactivated"
 msgstr ""
 
 #: views/menu-settings.php:98
@@ -426,7 +426,7 @@ msgid "Remove this product from YellowCube"
 msgstr ""
 
 #: views/metabox-product.php:76
-msgid "Your product will be desactivated in YellowCube"
+msgid "Your product will be deactivated in YellowCube"
 msgstr ""
 
 #: views/metabox-product.php:90
@@ -452,7 +452,7 @@ msgid "Update"
 msgstr ""
 
 #: views/metabox-product.php:117
-msgid "Desactivate"
+msgid "Deactivate"
 msgstr ""
 
 #: views/metabox-product.php:120
