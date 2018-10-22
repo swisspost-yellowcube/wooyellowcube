@@ -67,14 +67,14 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
         <td><?php echo date('d/m/Y H:i', $stock->yellowcube_date)?></td>
 
         <td>
-            <?php if(!empty($product->post)) : ?>
-            <?php if($yellowcube_stock == $woocommerce_stock) : ?>
-              <span style="color: #14972B;"><strong><?php _e('Same stock', 'wooyellowcube'); ?></strong></span>
+            <?php if(!empty($product)) : ?>
+                <?php if($yellowcube_stock == $woocommerce_stock) : ?>
+                  <span style="color: #14972B;"><strong><?php _e('Same stock', 'wooyellowcube'); ?></strong></span>
+                <?php else: ?>
+                  <span style="color: #CE1A1A;"><strong><?php _e('Different stock', 'wooyellowcube'); ?></strong></span>
+                <?php endif; ?>
             <?php else: ?>
-              <span style="color: #CE1A1A;"><strong><?php _e('Different stock', 'wooyellowcube'); ?></strong></span>
-            <?php endif; ?>
-            <?php else: ?>
-          <span><?php _e('Product not in WooCommerce', 'wooyellowcube'); ?></span>
+                <span><?php _e('Product not in WooCommerce', 'wooyellowcube'); ?></span>
             <?php endif; ?>
         </td>
         <?php if(get_option('wooyellowcube_lotmanagement') == 1) : ?>
