@@ -1361,10 +1361,10 @@ class WooYellowCube
                                     'product_id' => $articleID,
                                     'product_name' => $article->getArticleDescription(),
                                     'woocommerce_stock' => $product->get_stock_quantity(),
-                                    'yellowcube_stock' => $article->getQuantityUOM(),
+                                    'yellowcube_stock' => (string)$article->getQuantityUOM(),
                                     'yellowcube_date' => time(),
                                     'yellowcube_articleno' => $article->getArticleNo(),
-                                    'yellowcube_lot' => $article->getLot(),
+                                    'yellowcube_lot' => $article->getLot() ?: '',
                                     'yellowcube_bestbeforedate' => $article->getBestBeforeDate()
                                 )
                             );
@@ -1374,9 +1374,9 @@ class WooYellowCube
                                 'wooyellowcube_stock_lots',
                                 array(
                                     'id_product' => $articleID,
-                                    'product_lot' => $article->getLot(),
-                                    'product_quantity' => $article->getQuantityUOM(),
-                                    'product_expiration' => $article->getBestBeforeDate()
+                                    'product_lot' => $article->getLot() ?: '',
+                                    'product_quantity' => (string)$article->getQuantityUOM(),
+                                    'product_expiration' => $article->getBestBeforeDate() ?: ''
                                 )
                             );
 
