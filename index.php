@@ -669,8 +669,14 @@ class WooYellowCube
                 return false;
             }
 
-            // Skip products if virtual or SKU missing.
-            if ($wc_product->get_sku() == '' || $wc_product->get_virtual() == true) {
+            // Skip products if virtual.
+            if ($wc_product->get_virtual() == true) {
+                $this->log_create(0, 'ART', 0, $product_id, 'Skipping virtual product id ' . $product_id);
+                return false;
+            }
+            // Skip products with missing SKU.
+            if ($wc_product->get_sku() == '') {
+                $this->log_create(0, 'ART', 0, $product_id, 'SKU undefined, skipping product id ' . $product_id);
                 return false;
             }
 
