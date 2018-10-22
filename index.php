@@ -1329,6 +1329,7 @@ class WooYellowCube
             try {
                 // get yellowcube inventory
                 $articles = $this->yellowcube->getInventory();
+
                 // remove the current stock informations
                 $wpdb->query('DELETE FROM wooyellowcube_stock');
                 $wpdb->query('DELETE FROM wooyellowcube_stock_lots');
@@ -1342,6 +1343,10 @@ class WooYellowCube
                         // get product informations
                         $articleSKU = $article->getArticleNo();
                         $articleInformations = $this->retrieveProductBySKU($articleSKU);
+                        if (!$articleInformations) {
+                          // This product doesn't exist in WooCommerce.
+                          continue;
+                        }
 
                         // get product ID
                         $articleID = intval($articleInformations->post_id);
