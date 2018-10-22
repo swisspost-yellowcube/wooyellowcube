@@ -895,14 +895,12 @@ class WooYellowCube
         foreach ($shipping_methods as $shippingMethod) {
             // get shipping method informations
             $shippingMethodDatas = $shippingMethod->get_data();
-            $shippingMethodID = $shippingMethodDatas['method_id'];
-            $shippingMethodIDExtract = explode(':', $shippingMethodID);
-            $shippingMethodIdentifier = $shippingMethodIDExtract[1];
+            $shippingInstanceID = $shippingMethodDatas['instance_id'];
         }
 
         // get shipping methods available
         $shipping_saved_methods = unserialize(get_option('wooyellowcube_shipping_methods'));
-        return ($shipping_saved_methods[$shippingMethodIdentifier]['status'] == 0) ? false : true;
+        return ($shipping_saved_methods[$shippingInstanceID]['status'] == 0) ? false : true;
     }
 
     /**
