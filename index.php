@@ -669,6 +669,11 @@ class WooYellowCube
                 return false;
             }
 
+            // Skip products if virtual or SKU missing.
+            if ($wc_product->get_sku() == '' || $wc_product->get_virtual() == true) {
+                return false;
+            }
+
             if (wp_get_post_parent_id($product_id) == 0) {
                 $wc_product_parent = new WC_Product((int)$product_id);
             } else {
