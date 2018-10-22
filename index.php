@@ -1023,7 +1023,8 @@ class WooYellowCube
                                 // get the product object
                                 $product = wc_get_product($itemIdentifier);
 
-                                if ($product->get_sku() != '') {
+                                // Skip products if virtual or SKU missing.
+                                if ($product->get_sku() != '' && $product->get_virtual() == false) {
 
                                     // check if the product is in YellowCube
                                     $productART = $wpdb->get_var('SELECT COUNT(id) FROM wooyellowcube_products WHERE id_product="'.$itemIdentifier.'"');
