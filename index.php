@@ -53,9 +53,13 @@ class WooYellowCube
         $this->columns();
 
         if ($this->areSettingsReady()) {
-            $this->crons_responses();
-            $this->crons_daily();
-            $this->crons_hourly();
+            try {
+                $this->crons_responses();
+                $this->crons_daily();
+                $this->crons_hourly();
+            } catch (Exception $e) {
+                // Silently fail.
+            }
         }
 
         $this->languages();
@@ -98,6 +102,10 @@ class WooYellowCube
      */
     public function yellowcube()
     {
+        if ($this->yellowcube !== null) {
+            return true;
+        }
+
         switch ((int)get_option('wooyellowcube_yellowcubeSOAPUrl')) {
         case 1:
             $this->defaultWSDL = 'https://service-test.swisspost.ch/apache/yellowcube-test/?wsdl';
@@ -113,14 +121,14 @@ class WooYellowCube
         // YellowCube SOAP configuration
         $soap_config = new Config(get_option('wooyellowcube_setter'), $this->defaultWSDL, null, get_option('wooyellowcube_operatingMode'));
 
-        // YellowCube SOAP signature
-        if (get_option('wooyellowcube_authentification')) {
-            $soap_config->setCertificateFilePath(__DIR__ .'/'.get_option('wooyellowcube_authentificationFile'));
-        }
-
         // YellowCube API instanciation
         try {
-            $this->yellowcube = new Service($soap_config);
+          // YellowCube SOAP signature
+          if (get_option('wooyellowcube_authentification')) {
+            $soap_config->setCertificateFilePath(__DIR__ .'/'.get_option('wooyellowcube_authentificationFile'));
+          }
+
+          $this->yellowcube = new Service($soap_config);
             return true;
         } catch (Exception $e) {
             $this->log_create(0, 'INIT-ERROR', null, null, __('SOAP WSDL not reachable', 'wooyellowcube'));
@@ -135,7 +143,9 @@ class WooYellowCube
     {
         global $wpdb;
 
+        // YellowCube connection.
         if ($this->yellowcube()) {
+
             $days = 10 * 60 * 60 * 24; // 10 days in ms
             $orders = $wpdb->get_results('SELECT * FROM wooyellowcube_orders WHERE status != 2 AND created_at > '.(time() - $days)); // Get all orders that don't have status to 1 and dated more than 10 days
 
@@ -645,7 +655,7 @@ class WooYellowCube
     {
         global $wpdb;
 
-        // YellowCube connexion
+        // YellowCube connection.
         if ($this->yellowcube()) {
 
             // Product object
@@ -886,11 +896,14 @@ class WooYellowCube
 
     public function isShippingAvailable($wcOrder)
     {
-
         // get shipping methods
         $shipping_methods = $wcOrder->get_shipping_methods();
-        $shipping_name = '';
+        if (empty($shipping_methods)) {
+          // No shipping methods available.
+          return false;
+        }
 
+        $shippingInstanceID = null;
         // loop on each shipping method available for this order
         foreach ($shipping_methods as $shippingMethod) {
             // get shipping method informations
@@ -953,8 +966,9 @@ class WooYellowCube
         // order informations
         $orderInformations = array();
 
-        // YellowCube is instanced
+        // YellowCube connection.
         if ($this->yellowcube()) {
+
             // get the current order
             if ($wcOrder = wc_get_order($order_id)) {
                 if ($this->isShippingAvailable($wcOrder)) {
@@ -1011,7 +1025,7 @@ class WooYellowCube
                             // count order items for position
                             $orderItemsCount = 0;
 
-                            foreach ($orderItems as $orderItem) {
+                            foreach ($orderItems as $key => $orderItem) {
                                 $orderItemsCount = $orderItemsCount + 1;
 
                                 // item identifier
@@ -1140,13 +1154,13 @@ class WooYellowCube
             $products_execution = $wpdb->get_results('SELECT * FROM wooyellowcube_products WHERE yc_response = 1');
             // Get results from previous requests on orders
             $orders_execution = $wpdb->get_results('SELECT * FROM wooyellowcube_orders WHERE yc_response = 1');
-            // Connect to YellowCube if we have some requests entries
-            $load_yellowcube = false;
-            $load_yellowcube = (is_array($products_execution)) ? true : false;
-            $load_yellowcube = (is_array($orders_execution)) ? true : false;
 
-            if ($load_yellowcube) {
-                $this->yellowcube();
+            // Connect to YellowCube if we have some requests entries.
+            if (is_array($products_execution) || is_array($orders_execution)) {
+                if (!$this->yellowcube()) {
+                    // Instanciation failed, skip.
+                    return;
+                }
             }
 
             // Products execution
@@ -1239,6 +1253,10 @@ class WooYellowCube
         global $wpdb;
         $cron_daily = get_option('wooyellowcube_cron_daily');
         $current_day = date('Ymd');
+
+        if (!$this->yellowcube()) {
+            return;
+        }
 
         // Execute CRON
         if ($current_day != $cron_daily) {
@@ -1375,10 +1393,7 @@ class WooYellowCube
 
         // Need to execute the cron
         if ((time() - $cron_hourly) > $cron_limit_time) {
-            // Get YellowCube
-            if ($this->yellowcube()) {
-                $this->retrieveWAR();
-            }
+            $this->retrieveWAR();
         }
 
         if (isset($_GET['cron_hourly'])) {
