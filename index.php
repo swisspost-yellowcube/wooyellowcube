@@ -320,13 +320,13 @@ class WooYellowCube
         if (isset($_POST['wooyellowcube-settings'])) {
             // Update all WordPress options
             $values_to_save = [
-                'setter', 'receiver', 'depositorNo', 'partnerNo', 'plant', 'operatingMode',
-                'authentification', 'authentificationFile', 'cronDelay', 'yellowcubeSOAPUrl',
-                'email', 'language', 'activation', 'lotmanagement', 'logs_delete',
+                'setter', 'receiver', 'depositorNo', 'partnerNo', 'plant',
+                'operatingMode', 'authentification', 'authentificationFile',
+                'yellowcubeSOAPUrl', 'lotmanagement', 'logs',
             ];
 
             foreach ($values_to_save as $value_key) {
-                if (!empty($_POST[$value_key])) {
+                if (isset($_POST[$value_key])) {
                     update_option('wooyellowcube_' . $value_key, htmlspecialchars($_POST[$value_key]));
                 }
             }

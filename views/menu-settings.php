@@ -19,13 +19,13 @@
   <!-- DepositorNo -->
   <p>
     <label for="depositorNo"><?php _e('DepositorNo', 'wooyellowcube')?></label>
-    <input type="text" name="depositorNo" id="depositorNo" value="<?php echo get_option('wooyellowcube_depositorno'); ?>" />
+    <input type="text" name="depositorNo" id="depositorNo" value="<?php echo get_option('wooyellowcube_depositorNo'); ?>" />
   </p>
 
   <!-- PartnerNo -->
   <p>
     <label for="partnerNo"><?php _e('PartnerNo', 'wooyellowcube'); ?></label>
-    <input type="text" name="partnerNo" id="partnerNo" value="<?php echo get_option('wooyellowcube_partnerno'); ?>" />
+    <input type="text" name="partnerNo" id="partnerNo" value="<?php echo get_option('wooyellowcube_partnerNo'); ?>" />
   </p>
 
   <!-- Plant -->
@@ -82,9 +82,9 @@
 
   <h2><?php _e('Logs', 'wooyellowcube');?></h2>
   <p>
-	  <label for="logs_delete"><?php _e('Day before logs are removed from database', 'wooyellowcube'); ?></label>
+	  <label for="logs"><?php _e('Day before logs are removed from database', 'wooyellowcube'); ?></label>
 	  <br />
-	  <input type="text" name="logs_delete" id="logs_delete" value="<?php echo get_option('wooyellowcube_logs'); ?>" />
+	  <input type="text" name="logs" id="logs" value="<?php echo get_option('wooyellowcube_logs'); ?>" />
   </p>
 
 
