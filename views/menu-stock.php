@@ -25,13 +25,27 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
 <h1><?php _e('WooYellowCube', 'wooyellowcube'); ?> - <?php _e('Stock management', 'wooyellowcube');?></h1>
 
 <?php if(count($stocks) == 0) : ?>
-  <p><?php _e('No stock found in YellowCube', 'wooyellowcube');?></p>
+  <p><?php _e('No stock found in YellowCube.', 'wooyellowcube');?></p>
+
+<form action="" method="post">
+    <div class="bulking-actions">
+        <p>
+            <select name="bulking_actions" id="bulking_actions">
+                <option value="3"><?php _e('Force to refresh inventory', 'wooyellowcube'); ?></option>
+            </select>
+        </p>
+        <p>
+            <input type="submit" name="bulking_execute" id="bulking_execute" value="<?php _e('Execute', 'wooyellowcube'); ?>" class="button" />
+        </p>
+    </div>
+</form>
+
 <?php else: ?>
 
 <?php if($status === 1) : ?>
-<p><?php _e('Bulking ART update applied', 'wooyellowcube'); ?></p>
+<p><?php _e('Bulking ART update applied.', 'wooyellowcube'); ?></p>
 <?php elseif($status === 2) : ?>
-<p><?php _e('Bulking WooCommerce stock change applied', 'wooyellowcube'); ?></p>
+<p><?php _e('Bulking WooCommerce stock change applied.', 'wooyellowcube'); ?></p>
 <?php endif; ?>
 
 <form action="" method="post">
