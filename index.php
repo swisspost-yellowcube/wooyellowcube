@@ -1077,7 +1077,8 @@ class WooYellowCube
                             $yellowcubeWABRequest = $this->yellowcube->createYCCustomerOrder($yellowcubeOrder);
 
                             if (!$this->alreadySentYellowCube($order_id)) {
-                                $wpdb->insert(
+                                // State unsubmitted or pending.
+                                $num = $wpdb->replace(
                                     'wooyellowcube_orders',
                                     array(
                                         'id_order' => $order_id,
@@ -1090,6 +1091,7 @@ class WooYellowCube
                                 );
                                 $this->log_create(1, 'WAB-DELIVERY ORDER', $yellowcubeWABRequest->getReference(), $order_id, 'WAB Request has been sent');
                             } else {
+                                // @todo Remove, this is never reached.
                                 $orderIdentificationArchive = $this->alreadySentYellowCube($order_id);
                                 $wpdb->update(
                                     'wooyellowcube_orders',
@@ -1113,6 +1115,8 @@ class WooYellowCube
                             $this->log_create(0, 'WAB-DELIVERY ORDER', '', $order_id, $e->getMessage());
                         }
                     }
+                } else {
+                  // @todo Report in  UI: Order was skipped, no shipping needed.
                 }
             }
         }
