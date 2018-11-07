@@ -15,7 +15,7 @@
 </script>
 
 <h1><?php _e('WooYellowCube Activity logs', 'wooyellowcube'); ?></h1>
-<p><?php _e('If you have any question about error displayed, please contact YellowCube to get more informations (<a href="http://yellowcube.ch">www.yellowcube.ch</a> or by phone <strong>+41 58 386 48 08</strong>)', 'wooyellowcube'); ?></p>
+<p><?php _e('If you have any question about errors displayed, please contact YellowCube to get more information (<a href="http://yellowcube.ch">www.yellowcube.ch</a> or by phone <strong>+41 58 386 48 08</strong>)', 'wooyellowcube'); ?></p>
 
 <hr />
 
@@ -26,7 +26,7 @@ global $wpdb;
 $yellowcube_activities = $wpdb->get_results('SELECT * FROM wooyellowcube_logs ORDER BY created_at DESC LIMIT 0, 600');
 
 if(count($yellowcube_activities) == 0) : ?>
-<p>They is currently no recent activities</p>
+<p>There are currently no recent activities.</p>
 <?php else: ?>
 <div style="overflow-y: scroll; width: 100%; height: 890px">
 <table class="wp-list-table widefat fixed striped datatable ">

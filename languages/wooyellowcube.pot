@@ -219,7 +219,7 @@ msgid "Day before logs are removed from database"
 msgstr ""
 
 #: views/menu-settings.php:110
-msgid "Save informations"
+msgid "Save information"
 msgstr ""
 
 #: views/menu-shipping.php:1

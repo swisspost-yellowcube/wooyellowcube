@@ -91,7 +91,7 @@
 
 
   <p>
-    <input type="submit" name="wooyellowcube-settings" value="<?=__('Save informations', 'wooyellowcube')?>" class="button" />
+    <input type="submit" name="wooyellowcube-settings" value="<?=__('Save information', 'wooyellowcube')?>" class="button" />
   </p>
 
 
