@@ -48,7 +48,7 @@ if(count($yellowcube_activities) == 0) : ?>
         <td>
         <?php if(strpos($activity->type, 'ART') !== false) : ?>
         <?php
-        $wc_product = new WC_Product((int)$activity->object);
+        $wc_product = wc_get_product((int)$activity->object);
 
         if($wc_product) {
             echo $wc_product->get_sku();
