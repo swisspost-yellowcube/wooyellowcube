@@ -143,53 +143,54 @@ class WooYellowCube
     {
         global $wpdb;
 
-        // YellowCube connection.
-        if ($this->yellowcube()) {
+        if (!$this->yellowcube()) {
+            // YellowCube setup failed, abort.
+            return;
+        }
 
-            // 10 days in sec.
-            $days = 10 * 60 * 60 * 24;
-            // Get all orders that don't have status to 2 and dated more than 10 days.
-            $orders = $wpdb->get_results('SELECT * FROM wooyellowcube_orders WHERE status != 2 AND created_at > '.(time() - $days));
+        // 10 days in sec.
+        $days = 10 * 60 * 60 * 24;
+        // Get all orders that don't have status to 2 and dated more than 10 days.
+        $orders = $wpdb->get_results('SELECT * FROM wooyellowcube_orders WHERE status != 2 AND created_at > '.(time() - $days));
 
-            if (count($orders) > 0) {
-                // Loop each orders
-                foreach ($orders as $order) {
-                    $order_id = $order->id_order;
-                    $order_object = wc_get_order((int)$order_id);
-                    if (!$order_object) {
-                        // Article deleted, drop record.
-                        $wpdb->delete(
-                            'wooyellowcube_orders',
-                            array(
-                              'id_order' => $order_id,
-                            )
-                        );
-                        continue;
-                    }
-                    $order_number = $order_object->get_order_number();
-                    $order_final = (trim($order_number) == '') ? $order_id : $order_number;
+        if (count($orders) > 0) {
+            // Loop each orders
+            foreach ($orders as $order) {
+                $order_id = $order->id_order;
+                $order_object = wc_get_order((int)$order_id);
+                if (!$order_object) {
+                    // Article deleted, drop record.
+                    $wpdb->delete(
+                        'wooyellowcube_orders',
+                        array(
+                          'id_order' => $order_id,
+                        )
+                    );
+                    continue;
+                }
+                $order_number = $order_object->get_order_number();
+                $order_final = (trim($order_number) == '') ? $order_id : $order_number;
 
-                    $replies = $this->yellowcube->getYCCustomerOrderReply($order_object->get_order_number());
+                $replies = $this->yellowcube->getYCCustomerOrderReply($order_object->get_order_number());
 
-                    foreach ($replies as $reply) {
-                        $header = $reply->getCustomerOrderHeader();
-                        $track = $header->getPostalShipmentNo();
+                foreach ($replies as $reply) {
+                    $header = $reply->getCustomerOrderHeader();
+                    $track = $header->getPostalShipmentNo();
 
-                        // @todo only one track & trace number is supported.
-                        $wpdb->update(
-                            'wooyellowcube_orders',
-                            array(
-                                'status' => 2,
-                                'yc_shipping' => $track,
-                            ),
-                            array(
-                                'id_order' => $order_id,
-                            )
-                        );
+                    // @todo only one track & trace number is supported.
+                    $wpdb->update(
+                        'wooyellowcube_orders',
+                        array(
+                            'status' => 2,
+                            'yc_shipping' => $track,
+                        ),
+                        array(
+                            'id_order' => $order_id,
+                        )
+                    );
 
-                        $this->log_create(1, 'WAR-SHIPMENT DELIVERED', $order_final, $order_final, 'Track & Trace received for order '.$order_id.' : '.$track);
-                        $order_object->update_status('completed', __('Your order has been shipped', 'wooyellowcube'), false);
-                    }
+                    $this->log_create(1, 'WAR-SHIPMENT DELIVERED', $order_final, $order_final, 'Track & Trace received for order '.$order_id.' : '.$track);
+                    $order_object->update_status('completed', __('Your order has been shipped', 'wooyellowcube'), false);
                 }
             }
         }
@@ -676,191 +677,192 @@ class WooYellowCube
     {
         global $wpdb;
 
-        // YellowCube connection.
-        if ($this->yellowcube()) {
+        if (!$this->yellowcube()) {
+            // YellowCube setup failed, abort.
+            return;
+        }
 
-            // Product object
-            if ($variation == 'true') {
-                $wc_product = new WC_Product_Variation((int)$product_id);
-            } else {
-                $wc_product = new WC_Product((int)$product_id);
+        // Product object
+        if ($variation == 'true') {
+            $wc_product = new WC_Product_Variation((int)$product_id);
+        } else {
+            $wc_product = new WC_Product((int)$product_id);
+        }
+
+        if (!$wc_product) {
+            return false;
+        }
+
+        // Skip products if virtual.
+        if ($wc_product->get_virtual() == true) {
+            $this->log_create(0, 'ART', 0, $product_id, 'Skipping virtual product id ' . $product_id);
+            return false;
+        }
+        // Skip products with missing SKU.
+        if ($wc_product->get_sku() == '') {
+            $this->log_create(0, 'ART', 0, $product_id, 'SKU undefined, skipping product id ' . $product_id);
+            return false;
+        }
+
+        if (wp_get_post_parent_id($product_id) == 0) {
+            $wc_product_parent = new WC_Product((int)$product_id);
+        } else {
+            $wc_product_parent = new WC_Product((int)wp_get_post_parent_id($product_id));
+        }
+
+        $wc_product_parent_ID = $wc_product_parent->get_id();
+        $attributes = str_replace(' ', '', $wc_product_parent->get_attribute('EAN'));
+        $product_ean = '';
+
+        if (strpos($attributes, '=') !== false) {
+            $attributes_first_level = explode(',', $attributes);
+            $temp_attributes = array();
+
+            foreach ($attributes_first_level as $level) {
+                $level = explode('=', $level);
+                $product_identification = $level[0];
+                $product_ean = $level[1];
+                $temp_attributes[$product_identification] = $product_ean;
             }
 
-            if (!$wc_product) {
-                return false;
-            }
+            $product_ean = $temp_attributes[$product_id];
+        } else {
+            $product_ean = $attributes;
+        }
 
-            // Skip products if virtual.
-            if ($wc_product->get_virtual() == true) {
-                $this->log_create(0, 'ART', 0, $product_id, 'Skipping virtual product id ' . $product_id);
-                return false;
-            }
-            // Skip products with missing SKU.
-            if ($wc_product->get_sku() == '') {
-                $this->log_create(0, 'ART', 0, $product_id, 'SKU undefined, skipping product id ' . $product_id);
-                return false;
-            }
+        // YellowCube\Article
+        $article = new Article;
 
-            if (wp_get_post_parent_id($product_id) == 0) {
-                $wc_product_parent = new WC_Product((int)$product_id);
-            } else {
-                $wc_product_parent = new WC_Product((int)wp_get_post_parent_id($product_id));
-            }
+        // Validate type
+        switch ($type) {
+          case 'update':
+            $type = 'UPDATE';
+            $article->setChangeFlag(ChangeFlag::UPDATE);
+            break;
+        case 'deactivate':
+            $type = 'DEACTIVATE';
+            $article->setChangeFlag(ChangeFlag::DEACTIVATE);
+            break;
+        case 'insert':
+        default:
+            $type = 'INSERT';
+            $article->setChangeFlag(ChangeFlag::INSERT);
+            break;
+        }
 
-            $wc_product_parent_ID = $wc_product_parent->get_id();
-            $attributes = str_replace(' ', '', $wc_product_parent->get_attribute('EAN'));
-            $product_ean = '';
+        $article
+            ->setPlantID(get_option('wooyellowcube_plant'))
+            ->setDepositorNo(get_option('wooyellowcube_depositorNo'))
+            ->setArticleNo($wc_product->get_sku())
+            ->setNetWeight(round(wc_get_weight($wc_product->get_weight(), 'kg'), 3), ISO::KGM)
+            ->setGrossWeight(round(wc_get_weight($wc_product->get_weight(), 'kg'), 3), ISO::KGM)
+            ->setBatchMngtReq($lotmanagement)
+            ->addArticleDescription(substr($wc_product->get_title(), 0, 39), 'de')
+            ->addArticleDescription(substr($wc_product->get_title(), 0, 39), 'fr');
 
-            if (strpos($attributes, '=') !== false) {
-                $attributes_first_level = explode(',', $attributes);
-                $temp_attributes = array();
+        // custom field : BaseUOM && AlternateUnitISO
+        if (get_post_meta(get_the_ID(), 'yellowcube_BaseUOM', true) && get_post_meta(get_the_ID(), 'yellowcube_AlternateUnitISO', true)) {
+            $metaBaseUOM = get_post_meta(get_the_ID(), 'yellowcube_BaseUOM', true);
+            $metaBaseAlternateUnitISO = get_post_meta(get_the_ID(), 'yellowcube_AlternateUnitISO', true);
+            $article->setBaseUOM($metaBaseUOM);
+            $article->setAlternateUnitISO($metaBaseAlternateUnitISO);
+        } else {
+            // default value
+            $article->setBaseUOM(ISO::PCE);
+            $article->setAlternateUnitISO(ISO::PCE);
+        }
 
-                foreach ($attributes_first_level as $level) {
-                    $level = explode('=', $level);
-                    $product_identification = $level[0];
-                    $product_ean = $level[1];
-                    $temp_attributes[$product_identification] = $product_ean;
-                }
+        if (strlen($product_ean) == 8) {
+            $article->setEAN($product_ean, EANType::UC);
+        } else {
+            $article->setEAN($product_ean, EANType::HE);
+        }
 
-                $product_ean = $temp_attributes[$product_id];
-            } else {
-                $product_ean = $attributes;
-            }
+        $volume = 1;
 
-            // YellowCube\Article
-            $article = new Article;
+        // Set Length
+        if ($length = $wc_product->get_length()) {
+            $article->setLength(round(wc_get_dimension($length, 'cm'), 3), ISO::CMT);
+            $volume = $volume * wc_get_dimension($length, 'cm');
+        }
 
-            // Validate type
-            switch ($type) {
-              case 'update':
-                $type = 'UPDATE';
-                $article->setChangeFlag(ChangeFlag::UPDATE);
-                break;
-            case 'deactivate':
-                $type = 'DEACTIVATE';
-                $article->setChangeFlag(ChangeFlag::DEACTIVATE);
-                break;
-            case 'insert':
-            default:
-                $type = 'INSERT';
-                $article->setChangeFlag(ChangeFlag::INSERT);
-                break;
-            }
+        // Set Width
+        if ($width = $wc_product->get_width()) {
+            $article->setWidth(round(wc_get_dimension($width, 'cm'), 3), ISO::CMT);
+            $volume = $volume * wc_get_dimension($width, 'cm');
+        }
 
-            $article
-                ->setPlantID(get_option('wooyellowcube_plant'))
-                ->setDepositorNo(get_option('wooyellowcube_depositorNo'))
-                ->setArticleNo($wc_product->get_sku())
-                ->setNetWeight(round(wc_get_weight($wc_product->get_weight(), 'kg'), 3), ISO::KGM)
-                ->setGrossWeight(round(wc_get_weight($wc_product->get_weight(), 'kg'), 3), ISO::KGM)
-                ->setBatchMngtReq($lotmanagement)
-                ->addArticleDescription(substr($wc_product->get_title(), 0, 39), 'de')
-                ->addArticleDescription(substr($wc_product->get_title(), 0, 39), 'fr');
+        // Set Height
+        if ($height = $wc_product->get_height()) {
+            $article->setHeight(round(wc_get_dimension($height, 'cm'), 3), ISO::CMT);
+            $volume = $volume * wc_get_dimension($height, 'cm');
+        }
 
-            // custom field : BaseUOM && AlternateUnitISO
-            if (get_post_meta(get_the_ID(), 'yellowcube_BaseUOM', true) && get_post_meta(get_the_ID(), 'yellowcube_AlternateUnitISO', true)) {
-                $metaBaseUOM = get_post_meta(get_the_ID(), 'yellowcube_BaseUOM', true);
-                $metaBaseAlternateUnitISO = get_post_meta(get_the_ID(), 'yellowcube_AlternateUnitISO', true);
-                $article->setBaseUOM($metaBaseUOM);
-                $article->setAlternateUnitISO($metaBaseAlternateUnitISO);
-            } else {
-                // default value
-                $article->setBaseUOM(ISO::PCE);
-                $article->setAlternateUnitISO(ISO::PCE);
-            }
+        // Set Volume
+        $article->setVolume(round($volume, 3), ISO::CMQ);
+        $response_status_code = 0;
+        $response_status_text = '';
+        $response_reference = 0;
 
-            if (strlen($product_ean) == 8) {
-                $article->setEAN($product_ean, EANType::UC);
-            } else {
-                $article->setEAN($product_ean, EANType::HE);
-            }
-
-            $volume = 1;
-
-            // Set Length
-            if ($length = $wc_product->get_length()) {
-                $article->setLength(round(wc_get_dimension($length, 'cm'), 3), ISO::CMT);
-                $volume = $volume * wc_get_dimension($length, 'cm');
-            }
-
-            // Set Width
-            if ($width = $wc_product->get_width()) {
-                $article->setWidth(round(wc_get_dimension($width, 'cm'), 3), ISO::CMT);
-                $volume = $volume * wc_get_dimension($width, 'cm');
-            }
-
-            // Set Height
-            if ($height = $wc_product->get_height()) {
-                $article->setHeight(round(wc_get_dimension($height, 'cm'), 3), ISO::CMT);
-                $volume = $volume * wc_get_dimension($height, 'cm');
-            }
-
-            // Set Volume
-            $article->setVolume(round($volume, 3), ISO::CMQ);
+        try {
+            $response = $this->yellowcube->insertArticleMasterData($article);
+            // Status PENDING.
+            $response_status = 1;
+            $response_status_code = $response->getStatusCode();
+            $response_status_text = $response->getStatusText();
+            $response_reference = $response->getReference();
+            $this->log_create(1, 'ART-'.$type, $response_reference, $wc_product_parent_ID, $response_status_text);
+        } catch (Exception $e) {
+            // Status ERROR.
+            $response_status = 0;
             $response_status_code = 0;
-            $response_status_text = '';
-            $response_reference = 0;
+            $response_status_text = $e->getMessage();
+            $this->log_create(0, 'ART-'.$type, '', $wc_product_parent_ID, $e->getMessage());
+        }
 
-            try {
-                $response = $this->yellowcube->insertArticleMasterData($article);
-                // Status PENDING.
-                $response_status = 1;
-                $response_status_code = $response->getStatusCode();
-                $response_status_text = $response->getStatusText();
-                $response_reference = $response->getReference();
-                $this->log_create(1, 'ART-'.$type, $response_reference, $wc_product_parent_ID, $response_status_text);
-            } catch (Exception $e) {
-                // Status ERROR.
-                $response_status = 0;
-                $response_status_code = 0;
-                $response_status_text = $e->getMessage();
-                $this->log_create(0, 'ART-'.$type, '', $wc_product_parent_ID, $e->getMessage());
-            }
+        // Insert a product to YellowCube
+        if ($type == 'INSERT') {
+            $wpdb->insert(
+                'wooyellowcube_products',
+                array(
+                    'id_product' => $product_id,
+                    'created_at' => time(),
+                    'lotmanagement' => $lotmanagement,
+                    'yc_response' => $response_status,
+                    'yc_status_code' => $response_status_code,
+                    'yc_status_text' => $response_status_text,
+                    'yc_reference' => $response_reference
+                )
+            );
+        }
 
-            // Insert a product to YellowCube
-            if ($type == 'INSERT') {
-                $wpdb->insert(
+        // Update a product to YellowCube
+        if ($type == 'UPDATE') {
+            $wpdb->update(
+                'wooyellowcube_products',
+                array(
+                    'lotmanagement' => $lotmanagement,
+                    'yc_response' => $response_status,
+                    'yc_status_code' => $response_status_code,
+                    'yc_status_text' => $response_status_text,
+                    'yc_reference' => $response_reference
+                ),
+                array(
+                    'id_product' => $product_id
+                )
+            );
+        }
+
+        // Deactivate a product to YellowCube
+        if ($type == 'DEACTIVATE') {
+            // Be sure that they is no error before deleting
+            if ($response_status != 0) {
+                $wpdb->delete(
                     'wooyellowcube_products',
-                    array(
-                        'id_product' => $product_id,
-                        'created_at' => time(),
-                        'lotmanagement' => $lotmanagement,
-                        'yc_response' => $response_status,
-                        'yc_status_code' => $response_status_code,
-                        'yc_status_text' => $response_status_text,
-                        'yc_reference' => $response_reference
-                    )
-                );
-            }
-
-            // Update a product to YellowCube
-            if ($type == 'UPDATE') {
-                $wpdb->update(
-                    'wooyellowcube_products',
-                    array(
-                        'lotmanagement' => $lotmanagement,
-                        'yc_response' => $response_status,
-                        'yc_status_code' => $response_status_code,
-                        'yc_status_text' => $response_status_text,
-                        'yc_reference' => $response_reference
-                    ),
                     array(
                         'id_product' => $product_id
                     )
                 );
-            }
-
-            // Deactivate a product to YellowCube
-            if ($type == 'DEACTIVATE') {
-                // Be sure that they is no error before deleting
-                if ($response_status != 0) {
-                    $wpdb->delete(
-                        'wooyellowcube_products',
-                        array(
-                            'id_product' => $product_id
-                        )
-                    );
-                }
             }
         }
     }
@@ -1009,149 +1011,150 @@ class WooYellowCube
         // order informations
         $orderInformations = array();
 
-        // YellowCube connection.
-        if ($this->yellowcube()) {
+        if (!$this->yellowcube()) {
+            // YellowCube setup failed, abort.
+            return;
+        }
 
-            // get the current order
-            if ($wcOrder = wc_get_order($order_id)) {
-                if ($this->isShippingAvailable($wcOrder)) {
-                    if (!$this->alreadySentYellowCube($order_id)) {
+        // get the current order
+        if ($wcOrder = wc_get_order($order_id)) {
+            if ($this->isShippingAvailable($wcOrder)) {
+                if (!$this->alreadySentYellowCube($order_id)) {
 
-                        // global informations
-                        $orderInformations['global']['identifier'] = $wcOrder->get_order_number();
-                        $orderInformations['global']['locale'] = $this->getLocale();
-                        // partner informations
-                        $orderInformations['partner']['yc_partnerNo'] = get_option('wooyellowcube_partnerNo');
-                        $orderInformations['partner']['yc_partnerReference'] = substr($wcOrder->shipping_first_name, 0, 1).substr($wcOrder->shipping_last_name, 0, 1).$wcOrder->shipping_postcode;
-                        $orderInformations['partner']['yc_name1'] = $wcOrder->shipping_first_name.' '.$wcOrder->shipping_last_name;
-                        $orderInformations['partner']['yc_name2'] = $wcOrder->shipping_company;
-                        $orderInformations['partner']['yc_name3'] = $wcOrder->shipping_address_2;
-                        $orderInformations['partner']['yc_street'] = $wcOrder->shipping_address_1;
-                        $orderInformations['partner']['yc_countryCode'] = $wcOrder->shipping_country;
-                        $orderInformations['partner']['yc_zipCode'] = $wcOrder->shipping_postcode;
-                        $orderInformations['partner']['yc_city'] = $wcOrder->shipping_city;
-                        $orderInformations['partner']['yc_phoneNo'] = $wcOrder->billing_phone;
-                        $orderInformations['partner']['yc_email'] = $wcOrder->billing_email;
-                        // shipping informations
-                        $shippingInformations = $this->getShippingFromOrder($wcOrder);
-                        // create yellowcube order
-                        $yellowcubeOrder = new Order();
-                        $yellowcubeOrder->setOrderHeader(new OrderHeader(get_option('wooyellowcube_depositorNo'), $orderInformations['global']['identifier'], date('Ymd')));
-                        // create yellowcube partner
-                        $yellowcubePartner = new Partner();
-                        $yellowcubePartner
-                            ->setPartnerType('WE')
-                            ->setPartnerNo(get_option('wooyellowcube_partnerNo'))
-                            ->setPartnerReference($orderInformations['partner']['yc_partnerReference'])
-                            ->setName1($orderInformations['partner']['yc_name1'])
-                            ->setName2($orderInformations['partner']['yc_name2'])
-                            ->setName3($orderInformations['partner']['yc_name3'])
-                            ->setStreet($orderInformations['partner']['yc_street'])
-                            ->setCountryCode($orderInformations['partner']['yc_countryCode'])
-                            ->setZIPCode($orderInformations['partner']['yc_zipCode'])
-                            ->setCity($orderInformations['partner']['yc_city'])
-                            ->setPhoneNo($orderInformations['partner']['yc_phoneNo'])
-                            ->setEmail($orderInformations['partner']['email'])
-                            ->setLanguageCode($orderInformations['global']['locale']);
-                        // set the partner to the order
-                        $yellowcubeOrder->setPartnerAddress($yellowcubePartner);
+                    // global informations
+                    $orderInformations['global']['identifier'] = $wcOrder->get_order_number();
+                    $orderInformations['global']['locale'] = $this->getLocale();
+                    // partner informations
+                    $orderInformations['partner']['yc_partnerNo'] = get_option('wooyellowcube_partnerNo');
+                    $orderInformations['partner']['yc_partnerReference'] = substr($wcOrder->shipping_first_name, 0, 1).substr($wcOrder->shipping_last_name, 0, 1).$wcOrder->shipping_postcode;
+                    $orderInformations['partner']['yc_name1'] = $wcOrder->shipping_first_name.' '.$wcOrder->shipping_last_name;
+                    $orderInformations['partner']['yc_name2'] = $wcOrder->shipping_company;
+                    $orderInformations['partner']['yc_name3'] = $wcOrder->shipping_address_2;
+                    $orderInformations['partner']['yc_street'] = $wcOrder->shipping_address_1;
+                    $orderInformations['partner']['yc_countryCode'] = $wcOrder->shipping_country;
+                    $orderInformations['partner']['yc_zipCode'] = $wcOrder->shipping_postcode;
+                    $orderInformations['partner']['yc_city'] = $wcOrder->shipping_city;
+                    $orderInformations['partner']['yc_phoneNo'] = $wcOrder->billing_phone;
+                    $orderInformations['partner']['yc_email'] = $wcOrder->billing_email;
+                    // shipping informations
+                    $shippingInformations = $this->getShippingFromOrder($wcOrder);
+                    // create yellowcube order
+                    $yellowcubeOrder = new Order();
+                    $yellowcubeOrder->setOrderHeader(new OrderHeader(get_option('wooyellowcube_depositorNo'), $orderInformations['global']['identifier'], date('Ymd')));
+                    // create yellowcube partner
+                    $yellowcubePartner = new Partner();
+                    $yellowcubePartner
+                        ->setPartnerType('WE')
+                        ->setPartnerNo(get_option('wooyellowcube_partnerNo'))
+                        ->setPartnerReference($orderInformations['partner']['yc_partnerReference'])
+                        ->setName1($orderInformations['partner']['yc_name1'])
+                        ->setName2($orderInformations['partner']['yc_name2'])
+                        ->setName3($orderInformations['partner']['yc_name3'])
+                        ->setStreet($orderInformations['partner']['yc_street'])
+                        ->setCountryCode($orderInformations['partner']['yc_countryCode'])
+                        ->setZIPCode($orderInformations['partner']['yc_zipCode'])
+                        ->setCity($orderInformations['partner']['yc_city'])
+                        ->setPhoneNo($orderInformations['partner']['yc_phoneNo'])
+                        ->setEmail($orderInformations['partner']['email'])
+                        ->setLanguageCode($orderInformations['global']['locale']);
+                    // set the partner to the order
+                    $yellowcubeOrder->setPartnerAddress($yellowcubePartner);
 
-                        // add shipping informations to the yellowcube order object
-                        $yellowcubeOrder->addValueAddedService($shippingInformations['main']);
+                    // add shipping informations to the yellowcube order object
+                    $yellowcubeOrder->addValueAddedService($shippingInformations['main']);
 
-                        if (!empty($shippingInformations['additional'])) {
-                            $yellowcubeOrder->addValueAddedService(new AdditionalShippingServices($shippingInformations['additional']));
-                        }
+                    if (!empty($shippingInformations['additional'])) {
+                        $yellowcubeOrder->addValueAddedService(new AdditionalShippingServices($shippingInformations['additional']));
+                    }
 
-                        // get order items
-                        if ($orderItems = $wcOrder->get_items()) {
-                            // count order items for position
-                            $orderItemsCount = 0;
+                    // get order items
+                    if ($orderItems = $wcOrder->get_items()) {
+                        // count order items for position
+                        $orderItemsCount = 0;
 
-                            foreach ($orderItems as $key => $orderItem) {
-                                $orderItemsCount = $orderItemsCount + 1;
+                        foreach ($orderItems as $key => $orderItem) {
+                            $orderItemsCount = $orderItemsCount + 1;
 
-                                // item identifier
-                                $itemIdentifier = 0;
+                            // item identifier
+                            $itemIdentifier = 0;
 
-                                // check if the product is a variation or not
-                                $itemIdentifier = ($orderItem->get_variation_id() != 0) ? $orderItem->get_variation_id() : $orderItem->get_product_id();
+                            // check if the product is a variation or not
+                            $itemIdentifier = ($orderItem->get_variation_id() != 0) ? $orderItem->get_variation_id() : $orderItem->get_product_id();
 
-                                // get the product object
-                                $product = wc_get_product($itemIdentifier);
+                            // get the product object
+                            $product = wc_get_product($itemIdentifier);
 
-                                // Skip products if virtual or SKU missing.
-                                if ($product->get_sku() != '' && $product->get_virtual() == false) {
+                            // Skip products if virtual or SKU missing.
+                            if ($product->get_sku() != '' && $product->get_virtual() == false) {
 
-                                    // check if the product is in YellowCube
-                                    $productART = $wpdb->get_var('SELECT COUNT(id) FROM wooyellowcube_products WHERE id_product="'.$itemIdentifier.'"');
+                                // check if the product is in YellowCube
+                                $productART = $wpdb->get_var('SELECT COUNT(id) FROM wooyellowcube_products WHERE id_product="'.$itemIdentifier.'"');
 
-                                    if ($productART > 0) {
+                                if ($productART > 0) {
 
-                                        // create a position in YellowCube
-                                        $yellowcubePosition = new Position();
-                                        $yellowcubePosition
-                                            ->setPosNo($orderItemsCount)
-                                            ->setArticleNo($product->get_sku())
-                                            ->setPlant(get_option('wooyellowcube_plant'))
-                                            ->setQuantity($orderItem->get_quantity())
-                                            ->setQuantityISO('PCE')
-                                            ->setShortDescription(substr($product->get_name(), 0, 39));
+                                    // create a position in YellowCube
+                                    $yellowcubePosition = new Position();
+                                    $yellowcubePosition
+                                        ->setPosNo($orderItemsCount)
+                                        ->setArticleNo($product->get_sku())
+                                        ->setPlant(get_option('wooyellowcube_plant'))
+                                        ->setQuantity($orderItem->get_quantity())
+                                        ->setQuantityISO('PCE')
+                                        ->setShortDescription(substr($product->get_name(), 0, 39));
 
-                                        // add the position to the order
-                                        $yellowcubeOrder->addOrderPosition($yellowcubePosition);
-                                    }
+                                    // add the position to the order
+                                    $yellowcubeOrder->addOrderPosition($yellowcubePosition);
                                 }
                             }
                         }
-
-                        try {
-                            $yellowcubeWABRequest = $this->yellowcube->createYCCustomerOrder($yellowcubeOrder);
-
-                            if (!$this->alreadySentYellowCube($order_id)) {
-                                // State unsubmitted or pending.
-                                $num = $wpdb->replace(
-                                    'wooyellowcube_orders',
-                                    array(
-                                        'id_order' => $order_id,
-                                        'created_at' => time(),
-                                        // Status PENDING.
-                                        'yc_response' => 1,
-                                        'yc_status_code' => $yellowcubeWABRequest->getStatusCode(),
-                                        'yc_status_text' => $yellowcubeWABRequest->getStatusText(),
-                                        'yc_reference' => $yellowcubeWABRequest->getReference()
-                                    )
-                                );
-                                $this->log_create(1, 'WAB-DELIVERY ORDER', $yellowcubeWABRequest->getReference(), $order_id, 'WAB Request has been sent');
-                            } else {
-                                // @todo Remove, this is never reached.
-                                $orderIdentificationArchive = $this->alreadySentYellowCube($order_id);
-                                $wpdb->update(
-                                    'wooyellowcube_orders',
-                                    array(
-                                        'created_at' => time(),
-                                        // Status PENDING.
-                                        'yc_response' => 1,
-                                        'yc_status_code' => $yellowcubeWABRequest->getStatusCode(),
-                                        'yc_status_text' => $yellowcubeWABRequest->getStatusText(),
-                                        'yc_reference' => $yellowcubeWABRequest->getReference()
-                                    ),
-                                    array(
-                                        'id_order' => $order_id
-                                    )
-                                );
-                                $this->log_create(1, 'WAB-DELIVERY ORDER (UPDATE)', $yellowcubeWABRequest->getReference(), $orderIdentificationArchive, 'WAB Request has been sent');
-                            }
-
-                            // an error as occured
-                        } catch (Exception $e) {
-                            $wcOrder->update_status('failed', $e->getMessage());
-                            $this->log_create(0, 'WAB-DELIVERY ORDER', '', $order_id, $e->getMessage());
-                        }
                     }
-                } else {
-                  // @todo Report in  UI: Order was skipped, no shipping needed.
+
+                    try {
+                        $yellowcubeWABRequest = $this->yellowcube->createYCCustomerOrder($yellowcubeOrder);
+
+                        if (!$this->alreadySentYellowCube($order_id)) {
+                            // State unsubmitted or pending.
+                            $num = $wpdb->replace(
+                                'wooyellowcube_orders',
+                                array(
+                                    'id_order' => $order_id,
+                                    'created_at' => time(),
+                                    // Status PENDING.
+                                    'yc_response' => 1,
+                                    'yc_status_code' => $yellowcubeWABRequest->getStatusCode(),
+                                    'yc_status_text' => $yellowcubeWABRequest->getStatusText(),
+                                    'yc_reference' => $yellowcubeWABRequest->getReference()
+                                )
+                            );
+                            $this->log_create(1, 'WAB-DELIVERY ORDER', $yellowcubeWABRequest->getReference(), $order_id, 'WAB Request has been sent');
+                        } else {
+                            // @todo Remove, this is never reached.
+                            $orderIdentificationArchive = $this->alreadySentYellowCube($order_id);
+                            $wpdb->update(
+                                'wooyellowcube_orders',
+                                array(
+                                    'created_at' => time(),
+                                    // Status PENDING.
+                                    'yc_response' => 1,
+                                    'yc_status_code' => $yellowcubeWABRequest->getStatusCode(),
+                                    'yc_status_text' => $yellowcubeWABRequest->getStatusText(),
+                                    'yc_reference' => $yellowcubeWABRequest->getReference()
+                                ),
+                                array(
+                                    'id_order' => $order_id
+                                )
+                            );
+                            $this->log_create(1, 'WAB-DELIVERY ORDER (UPDATE)', $yellowcubeWABRequest->getReference(), $orderIdentificationArchive, 'WAB Request has been sent');
+                        }
+
+                        // an error as occured
+                    } catch (Exception $e) {
+                        $wcOrder->update_status('failed', $e->getMessage());
+                        $this->log_create(0, 'WAB-DELIVERY ORDER', '', $order_id, $e->getMessage());
+                    }
                 }
+            } else {
+              // @todo Report in  UI: Order was skipped, no shipping needed.
             }
         }
     }
@@ -1212,7 +1215,7 @@ class WooYellowCube
             // Connect to YellowCube if we have some requests entries.
             if (is_array($products_execution) || is_array($orders_execution)) {
                 if (!$this->yellowcube()) {
-                    // Instanciation failed, skip.
+                    // YellowCube setup failed, abort.
                     return;
                 }
             }
@@ -1307,10 +1310,6 @@ class WooYellowCube
         $cron_daily = get_option('wooyellowcube_cron_daily');
         $current_day = date('Ymd');
 
-        if (!$this->yellowcube()) {
-            return;
-        }
-
         // Execute CRON
         if (($current_day != $cron_daily) || (isset($_GET['cron_daily']) != '')) {
             // Update last execution date first, avoid re-run on error.
@@ -1364,73 +1363,76 @@ class WooYellowCube
         // number of products inserted during the BAR request
         $countInsertedArticle = 0;
 
-        if ($this->yellowcube()) {
-            try {
-                // get yellowcube inventory
-                $articles = $this->yellowcube->getInventory();
+        if (!$this->yellowcube()) {
+            // YellowCube setup failed, abort.
+            return;
+        }
 
-                // remove the current stock informations
-                $wpdb->query('DELETE FROM wooyellowcube_stock');
-                $wpdb->query('DELETE FROM wooyellowcube_stock_lots');
+        try {
+            // get yellowcube inventory
+            $articles = $this->yellowcube->getInventory();
 
-                // loop on each article
-                foreach ($articles as $article) {
+            // remove the current stock informations
+            $wpdb->query('DELETE FROM wooyellowcube_stock');
+            $wpdb->query('DELETE FROM wooyellowcube_stock_lots');
 
-                    // select only YAFS products (see with YellowCube technical operators)
-                    if ($article->getStorageLocation() == 'YAFS') {
+            // loop on each article
+            foreach ($articles as $article) {
 
-                        // get product informations
-                        $articleSKU = $article->getArticleNo();
-                        $articleInformations = $this->retrieveProductBySKU($articleSKU);
-                        if (!$articleInformations) {
-                          // This product doesn't exist in WooCommerce.
-                          continue;
-                        }
+                // select only YAFS products (see with YellowCube technical operators)
+                if ($article->getStorageLocation() == 'YAFS') {
 
-                        // get product ID
-                        $articleID = intval($articleInformations->post_id);
+                    // get product informations
+                    $articleSKU = $article->getArticleNo();
+                    $articleInformations = $this->retrieveProductBySKU($articleSKU);
+                    if (!$articleInformations) {
+                      // This product doesn't exist in WooCommerce.
+                      continue;
+                    }
 
-                        // get product object (WooCommerce)
-                        if ($product = wc_get_product($articleID)) {
+                    // get product ID
+                    $articleID = intval($articleInformations->post_id);
 
-                            // insert the stock information in database
-                            $wpdb->insert(
-                                'wooyellowcube_stock',
-                                array(
-                                    'product_id' => $articleID,
-                                    'product_name' => $article->getArticleDescription(),
-                                    'woocommerce_stock' => $product->get_stock_quantity(),
-                                    'yellowcube_stock' => (string)$article->getQuantityUOM(),
-                                    'yellowcube_date' => time(),
-                                    'yellowcube_articleno' => $article->getArticleNo(),
-                                    'yellowcube_lot' => $article->getLot() ?: '',
-                                    'yellowcube_bestbeforedate' => $article->getBestBeforeDate()
-                                )
-                            );
+                    // get product object (WooCommerce)
+                    if ($product = wc_get_product($articleID)) {
 
-                            // insert the stock information for lots in database
-                            $wpdb->insert(
-                                'wooyellowcube_stock_lots',
-                                array(
-                                    'id_product' => $articleID,
-                                    'product_lot' => $article->getLot() ?: '',
-                                    'product_quantity' => (string)$article->getQuantityUOM(),
-                                    'product_expiration' => $article->getBestBeforeDate() ?: ''
-                                )
-                            );
+                        // insert the stock information in database
+                        $wpdb->insert(
+                            'wooyellowcube_stock',
+                            array(
+                                'product_id' => $articleID,
+                                'product_name' => $article->getArticleDescription(),
+                                'woocommerce_stock' => $product->get_stock_quantity(),
+                                'yellowcube_stock' => (string)$article->getQuantityUOM(),
+                                'yellowcube_date' => time(),
+                                'yellowcube_articleno' => $article->getArticleNo(),
+                                'yellowcube_lot' => $article->getLot() ?: '',
+                                'yellowcube_bestbeforedate' => $article->getBestBeforeDate()
+                            )
+                        );
 
-                            // update the number of inserted article
-                            $countInsertedArticle = $countInsertedArticle + 1;
-                        }
+                        // insert the stock information for lots in database
+                        $wpdb->insert(
+                            'wooyellowcube_stock_lots',
+                            array(
+                                'id_product' => $articleID,
+                                'product_lot' => $article->getLot() ?: '',
+                                'product_quantity' => (string)$article->getQuantityUOM(),
+                                'product_expiration' => $article->getBestBeforeDate() ?: ''
+                            )
+                        );
+
+                        // update the number of inserted article
+                        $countInsertedArticle = $countInsertedArticle + 1;
                     }
                 }
-
-                // logging
-                $this->log_create(1, 'BAR', 0, 0, 'Stock inventory updated on '.date('d/m/Y H:i:s').' - Product updates : '.$countInsertedArticle);
-            } catch (Exception $e) {
-                // logging error
-                $this->log_create(0, 'BAR', 0, 0, $e->getMessage());
             }
+
+            // logging
+            $this->log_create(1, 'BAR', 0, 0, 'Stock inventory updated on '.date('d/m/Y H:i:s').' - Product updates : '.$countInsertedArticle);
+        } catch (Exception $e) {
+            // logging error
+            $this->log_create(0, 'BAR', 0, 0, $e->getMessage());
         }
     }
 
