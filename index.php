@@ -341,6 +341,11 @@ class WooYellowCube
                     update_option('wooyellowcube_' . $value_key, htmlspecialchars($_POST[$value_key]));
                 }
             }
+
+            // Reset execution times so crons are triggered again.
+            update_option('wooyellowcube_cron_response', 0);
+            update_option('wooyellowcube_cron_daily', 0);
+            update_option('wooyellowcube_cron_hourly', 0);
         }
 
         include_once 'views/menu-settings.php';
