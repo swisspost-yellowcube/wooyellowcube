@@ -541,6 +541,8 @@ class WooYellowCube
         add_action('wp_ajax_product_update', array(&$this, 'ajax_product_update')); // Product - update
         add_action('wp_ajax_product_remove', array(&$this, 'ajax_product_deactivate')); // Product - remove
         add_action('wp_ajax_order_send', array(&$this, 'ajax_order_send')); // Order - send
+
+        // @todo stubs only, remove?
         add_action('wp_ajax_order_again', array(&$this, 'ajax_order_again')); // Order - again
     }
 
@@ -619,7 +621,7 @@ class WooYellowCube
     /**
      * Ajax - Order - Again
      *
-     * @todo stub, unused, remove?
+     * @todo stub, remove?
      */
     public function ajax_order_again()
     {
@@ -716,13 +718,18 @@ class WooYellowCube
 
             // Validate type
             switch ($type) {
-            case 'insert': $type = 'INSERT'; $article->setChangeFlag(ChangeFlag::INSERT);
+              case 'update':
+                $type = 'UPDATE';
+                $article->setChangeFlag(ChangeFlag::UPDATE);
                 break;
-            case 'update': $type = 'UPDATE'; $article->setChangeFlag(ChangeFlag::UPDATE);
+            case 'deactivate':
+                $type = 'DEACTIVATE';
+                $article->setChangeFlag(ChangeFlag::DEACTIVATE);
                 break;
-            case 'deactivate': $type = 'DEACTIVATE'; $article->setChangeFlag(ChangeFlag::DEACTIVATE);
-                break;
-            default: $type = 'INSERT'; $article->setChangeFlag(ChangeFlag::INSERT);
+            case 'insert':
+            default:
+                $type = 'INSERT';
+                $article->setChangeFlag(ChangeFlag::INSERT);
                 break;
             }
 
