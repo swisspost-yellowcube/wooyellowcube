@@ -1200,7 +1200,10 @@ class WooYellowCube
         $cron_response = get_option('wooyellowcube_cron_response');
         $cron_response_limit = 60; // 60 seconds
 
-        if (((time() - $cron_response) > $cron_response_limit) || isset($_GET['cron_response']) != '') {
+        if (((time() - $cron_response) > $cron_response_limit) || (isset($_GET['cron_response']) != '')) {
+            // Update last execution date first, avoid re-run on error.
+            update_option('wooyellowcube_cron_response', time());
+
             // Get PENDING results from previous requests on products.
             $products_execution = $wpdb->get_results('SELECT * FROM wooyellowcube_products WHERE yc_response = 1');
             // Get PENDING results from previous requests on orders.
@@ -1292,9 +1295,6 @@ class WooYellowCube
                     }
                 }
             }
-
-            // Update last execution date
-            update_option('wooyellowcube_cron_response', time());
         }
     }
 
@@ -1312,13 +1312,10 @@ class WooYellowCube
         }
 
         // Execute CRON
-        if ($current_day != $cron_daily) {
-            $this->update_stock();
-            // Update last execution date
+        if (($current_day != $cron_daily) || (isset($_GET['cron_daily']) != '')) {
+            // Update last execution date first, avoid re-run on error.
             update_option('wooyellowcube_cron_daily', date('Ymd'));
-        }
 
-        if (isset($_GET['cron_daily'])) {
             $this->update_stock();
         }
 
@@ -1446,20 +1443,15 @@ class WooYellowCube
         global $wpdb;
         // Cron hourly execution
         $cron_hourly = get_option('wooyellowcube_cron_hourly');
-        $current_time = time();
         $cron_limit_time = 60 * 60;
 
         // Need to execute the cron
-        if ((time() - $cron_hourly) > $cron_limit_time) {
+        if (((time() - $cron_hourly) > $cron_limit_time) || (isset($_GET['cron_hourly']) != '')) {
+            // Update last execution date first, avoid re-run on error.
+            update_option('wooyellowcube_cron_hourly', time());
+
             $this->retrieveWAR();
         }
-
-        if (isset($_GET['cron_hourly'])) {
-            $this->retrieveWAR();
-        }
-
-        // Update cron last update
-        update_option('wooyellowcube_cron_hourly', time());
     }
 
     /**
