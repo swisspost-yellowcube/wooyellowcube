@@ -146,8 +146,10 @@ class WooYellowCube
         // YellowCube connection.
         if ($this->yellowcube()) {
 
-            $days = 10 * 60 * 60 * 24; // 10 days in ms
-            $orders = $wpdb->get_results('SELECT * FROM wooyellowcube_orders WHERE status != 2 AND created_at > '.(time() - $days)); // Get all orders that don't have status to 1 and dated more than 10 days
+            // 10 days in sec.
+            $days = 10 * 60 * 60 * 24;
+            // Get all orders that don't have status to 2 and dated more than 10 days.
+            $orders = $wpdb->get_results('SELECT * FROM wooyellowcube_orders WHERE status != 2 AND created_at > '.(time() - $days));
 
             if (count($orders) > 0) {
                 $temp = array();
@@ -777,12 +779,14 @@ class WooYellowCube
 
             try {
                 $response = $this->yellowcube->insertArticleMasterData($article);
+                // Status PENDING.
                 $response_status = 1;
                 $response_status_code = $response->getStatusCode();
                 $response_status_text = $response->getStatusText();
                 $response_reference = $response->getReference();
                 $this->log_create(1, 'ART-'.$type, $response_reference, $wc_product_parent_ID, $response_status_text);
             } catch (Exception $e) {
+                // Status ERROR.
                 $response_status = 0;
                 $response_status_code = 0;
                 $response_status_text = $e->getMessage();
@@ -955,8 +959,10 @@ class WooYellowCube
             return false;
         } else {
             if ($orderID->yc_response == 1) {
+                // Status PENDING.
                 return true;
             } elseif ($orderID->yc_response == 2) {
+                // Status SUCCESS.
                 return true;
             } else {
                 return false;
@@ -1083,6 +1089,7 @@ class WooYellowCube
                                     array(
                                         'id_order' => $order_id,
                                         'created_at' => time(),
+                                        // Status PENDING.
                                         'yc_response' => 1,
                                         'yc_status_code' => $yellowcubeWABRequest->getStatusCode(),
                                         'yc_status_text' => $yellowcubeWABRequest->getStatusText(),
@@ -1097,6 +1104,7 @@ class WooYellowCube
                                     'wooyellowcube_orders',
                                     array(
                                         'created_at' => time(),
+                                        // Status PENDING.
                                         'yc_response' => 1,
                                         'yc_status_code' => $yellowcubeWABRequest->getStatusCode(),
                                         'yc_status_text' => $yellowcubeWABRequest->getStatusText(),
@@ -1165,9 +1173,9 @@ class WooYellowCube
         $cron_response_limit = 60; // 60 seconds
 
         if (((time() - $cron_response) > $cron_response_limit) || isset($_GET['cron_response']) != '') {
-            // Get results from previous requests on products
+            // Get PENDING results from previous requests on products.
             $products_execution = $wpdb->get_results('SELECT * FROM wooyellowcube_products WHERE yc_response = 1');
-            // Get results from previous requests on orders
+            // Get PENDING results from previous requests on orders.
             $orders_execution = $wpdb->get_results('SELECT * FROM wooyellowcube_orders WHERE yc_response = 1');
 
             // Connect to YellowCube if we have some requests entries.
@@ -1227,6 +1235,7 @@ class WooYellowCube
                             $wpdb->update(
                                 'wooyellowcube_orders',
                                 array(
+                                    // Status SUCCESS.
                                     'yc_response' => 2,
                                     'yc_status_text' => $response->getStatusText()
                                 ),
@@ -1241,6 +1250,7 @@ class WooYellowCube
                         $wpdb->update(
                             'wooyellowcube_orders',
                             array(
+                                // Status ERROR.
                                 'yc_response' => 0,
                                 'yc_status_text' => $e->getMessage()
                             ),
@@ -1406,7 +1416,7 @@ class WooYellowCube
     public function crons_hourly()
     {
         global $wpdb;
-        // Cron hourly eecution
+        // Cron hourly execution
         $cron_hourly = get_option('wooyellowcube_cron_hourly');
         $current_time = time();
         $cron_limit_time = 60 * 60;
