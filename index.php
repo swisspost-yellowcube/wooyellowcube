@@ -359,7 +359,7 @@ class WooYellowCube
             update_option('wooyellowcube_shipping', serialize($shipping_methods));
             update_option('wooyellowcube_shipping_additional', serialize($shipping_additionals));
 
-            echo '<p class="alert alert-success">'.__('Shipping informations has been updated', 'wooyellowcube').'</p>';
+            echo '<p class="alert alert-success">'.__('Shipping information has been updated', 'wooyellowcube').'</p>';
         }
 
         include_once 'views/menu-shipping.php';
@@ -488,9 +488,7 @@ class WooYellowCube
         global $post, $wpdb;
 
         switch ($column_name) {
-            /**
- * Products status
-*/
+        // Products status
         case 'yellowcube_products':
             $product = $this->get_product_status($post->ID);
 
@@ -511,9 +509,7 @@ class WooYellowCube
 
             break;
 
-            /**
- * Orders status
-*/
+        // Orders status
         case 'yellowcube_orders':
             $order = $this->get_order_status($post->ID);
 
@@ -543,7 +539,7 @@ class WooYellowCube
     {
         add_action('wp_ajax_product_send', array(&$this, 'ajax_product_send')); // Product - send
         add_action('wp_ajax_product_update', array(&$this, 'ajax_product_update')); // Product - update
-        add_action('wp_ajax_product_remove', array(&$this, 'ajax_product_desactivate')); // Product - remove
+        add_action('wp_ajax_product_remove', array(&$this, 'ajax_product_deactivate')); // Product - remove
         add_action('wp_ajax_order_send', array(&$this, 'ajax_order_send')); // Order - send
         add_action('wp_ajax_order_again', array(&$this, 'ajax_order_again')); // Order - again
     }
@@ -584,11 +580,12 @@ class WooYellowCube
     /**
      * Ajax - Product - Remove
      */
-    public function ajax_product_desactivate()
+    public function ajax_product_deactivate()
     {
         // Get post ID
         $post_id = htmlspecialchars($_POST['post_id']);
-        $variation = isset($_POST['variation']) ? htmlspecialchars($_POST['variation']) : false; // Get the information if the product is a variation
+        // Get the information if the product is a variation
+        $variation = isset($_POST['variation']) ? htmlspecialchars($_POST['variation']) : false;
         // Delete the product in YellowCube
         $this->YellowCube_ART($post_id, 'deactivate', 0, $variation);
         exit();
@@ -596,6 +593,8 @@ class WooYellowCube
 
     /**
      * Ajax - Product - Refresh
+     *
+     * @todo stub, unused, remove?
      */
     public function ajax_product_refresh()
     {
@@ -619,6 +618,8 @@ class WooYellowCube
 
     /**
      * Ajax - Order - Again
+     *
+     * @todo stub, unused, remove?
      */
     public function ajax_order_again()
     {
@@ -630,6 +631,8 @@ class WooYellowCube
 
     /**
      * Ajax - Order - Refresh
+     *
+     * @todo stub, unused, remove?
      */
     public function ajax_order_refresh()
     {
@@ -936,6 +939,8 @@ class WooYellowCube
      *
      * @release 3.4.1
      * @date    2017-05-08
+     *
+     * @todo Unused, remove?
      */
     public function alreadySuccessYellowCube($orderID)
     {
@@ -1150,6 +1155,8 @@ class WooYellowCube
 
     /**
      * Get product object by SKU
+     *
+     * @todo Unused, remove?
      */
     public function get_product_by_sku($sku)
     {

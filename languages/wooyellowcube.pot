@@ -49,7 +49,7 @@ msgid "Need help ?"
 msgstr ""
 
 #: index.php:365
-msgid "Shipping informations has been updated"
+msgid "Shipping information has been updated"
 msgstr ""
 
 #: index.php:541 index.php:564 views/menu-logs.php:48
@@ -133,7 +133,7 @@ msgid "WooYellowCube"
 msgstr ""
 
 #: views/menu-settings.php:5
-msgid "Personal informations"
+msgid "Personal information"
 msgstr ""
 
 #: views/menu-settings.php:9
@@ -157,7 +157,7 @@ msgid "Plant"
 msgstr ""
 
 #: views/menu-settings.php:39
-msgid "Technical informations"
+msgid "Technical information"
 msgstr ""
 
 #: views/menu-settings.php:42
@@ -243,7 +243,7 @@ msgid "Shipping method ID"
 msgstr ""
 
 #: views/menu-shipping.php:48
-msgid "Save shipping informations"
+msgid "Save shipping information"
 msgstr ""
 
 #: views/menu-stock-view.php:13
@@ -380,7 +380,7 @@ msgid "Try again to send this order to YellowCube"
 msgstr ""
 
 #: views/metabox-order.php:83 views/metabox-order.php:93
-msgid "Please save your order informations before to send to YellowCube."
+msgid "Please save your order information before to send to YellowCube."
 msgstr ""
 
 #: views/metabox-order.php:84 views/metabox-order.php:94
@@ -414,7 +414,7 @@ msgid "Send product to YellowCube"
 msgstr ""
 
 #: views/metabox-product.php:61
-msgid "Update YellowCube informations"
+msgid "Update YellowCube information"
 msgstr ""
 
 #: views/metabox-product.php:70

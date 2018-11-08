@@ -67,7 +67,7 @@ $yellowcube_order = $wpdb->get_row('SELECT * FROM wooyellowcube_orders WHERE id_
         <?php if($yellowcube_order->yc_response != 2) : ?>
       <!-- Order status is not 100 -->
       <div>
-        <p><small><strong><u>Important:</u></strong> <?php _e('All order informations has to be saved before sending it to YellowCube');?></p>
+        <p><small><strong><u>Important:</u></strong> <?php _e('All order information has to be saved before sending it to YellowCube');?></p>
         <p><small>There is an error sent from YellowCube. Refer to the error message above or contact YellowCube to get help.</small></p>
         <p><a href="#" onclick="return false;" class="button-primary" id="wooyellowcube-order-again"><?php _e('Send this order again to YellowCube', 'wooyellowcube'); ?></a></p>
       </div>
@@ -78,7 +78,7 @@ $yellowcube_order = $wpdb->get_row('SELECT * FROM wooyellowcube_orders WHERE id_
     <!-- Order has not been sent -->
     <div>
       <h3><?php _e('This order has not been sent to YellowCube', 'wooyellowcube'); ?></h3>
-      <p><small><strong><u>Important:</u></strong> <?php _e('All order informations has to be saved before sending it to YellowCube');?></p>
+      <p><small><strong><u>Important:</u></strong> <?php _e('All order information has to be saved before sending it to YellowCube');?></p>
       <p><a href="#" onclick="return false;" class="button-primary" id="wooyellowcube-order-send"><?php _e('Send order to YellowCube', 'wooyellowcube');?></a></p>
     </div>
     <?php endif; ?>

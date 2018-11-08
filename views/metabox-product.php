@@ -47,7 +47,7 @@ $yellowcube_product = $wpdb->get_row('SELECT * FROM wooyellowcube_products WHERE
         <?php if($yellowcube_product): ?>
         <br /><hr />
         <div>
-            <h3><?php _e('Resend product informations to YellowCube', 'wooyellowcube'); ?></h3>
+            <h3><?php _e('Resend product information to YellowCube', 'wooyellowcube'); ?></h3>
             <p><label for="lotmanagement"><?php _e('<strong>Is your product using lot management?</strong>', 'wooyellowcube'); ?></label></p>
             <p>
                 <select name="lotmanagement" id="lotmanagement">

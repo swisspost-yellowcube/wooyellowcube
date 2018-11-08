@@ -2,7 +2,7 @@
 <form action="" method="post">
 <div class="wooyellowcube-overflow">
   <div class="wooyellowcube-inline">
-  <h2><?php _e('Personal informations', 'wooyellowcube'); ?></h2>
+  <h2><?php _e('Personal information', 'wooyellowcube'); ?></h2>
 
   <!-- Setter -->
   <p>
@@ -36,7 +36,7 @@
 
 </div>
 <div class="wooyellowcube-inline">
-  <h2><?php _e('Technical informations', 'wooyellowcube'); ?></h2>
+  <h2><?php _e('Technical information', 'wooyellowcube'); ?></h2>
   <!-- SOAP Method -->
   <p>
     <label for="yellowcubeSOAPUrl"><?php _e('SOAP url', 'wooyellowcube'); ?></label>
