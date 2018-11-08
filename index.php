@@ -152,12 +152,20 @@ class WooYellowCube
             $orders = $wpdb->get_results('SELECT * FROM wooyellowcube_orders WHERE status != 2 AND created_at > '.(time() - $days));
 
             if (count($orders) > 0) {
-                $temp = array();
-
                 // Loop each orders
                 foreach ($orders as $order) {
                     $order_id = $order->id_order;
-                    $order_object = new WC_Order((int)$order_id);
+                    $order_object = wc_get_order((int)$order_id);
+                    if (!$order_object) {
+                        // Article deleted, drop record.
+                        $wpdb->delete(
+                            'wooyellowcube_orders',
+                            array(
+                              'id_order' => $order_id,
+                            )
+                        );
+                        continue;
+                    }
                     $order_number = $order_object->get_order_number();
                     $order_final = (trim($order_number) == '') ? $order_id : $order_number;
 
@@ -167,14 +175,15 @@ class WooYellowCube
                         $header = $reply->getCustomerOrderHeader();
                         $track = $header->getPostalShipmentNo();
 
+                        // @todo only one track & trace number is supported.
                         $wpdb->update(
                             'wooyellowcube_orders',
                             array(
                                 'status' => 2,
-                                'yc_shipping' => $track
+                                'yc_shipping' => $track,
                             ),
                             array(
-                                'id_order' => $order_id
+                                'id_order' => $order_id,
                             )
                         );
 
