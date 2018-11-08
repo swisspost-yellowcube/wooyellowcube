@@ -111,7 +111,7 @@ $yellowcube_product = $wpdb->get_row('SELECT * FROM wooyellowcube_products WHERE
                 <button onclick="return false;" class="button <?php if(!$button_disable): ?>wooyellowcube-product-variation-update<?php endif; ?>" <?php if($button_disable) echo 'disabled="disabled"'; ?>><?php _e('Update', 'wooyellowcube'); ?></button>
                 <input type="hidden" class="wooyellowcube-product-variation-id" value="<?php echo $variation_id?>" />
 
-                <a href="#" onclick="return false;" class="button <?php if(!$button_disable): ?>wooyellowcube-product-variation-desactivate<?php endif; ?>" <?php if($button_disable) echo 'disabled="disabled"'; ?>><?php _e('Deactivate', 'wooyellowcube');?></a>
+                <a href="#" onclick="return false;" class="button <?php if(!$button_disable): ?>wooyellowcube-product-variation-deactivate<?php endif; ?>" <?php if($button_disable) echo 'disabled="disabled"'; ?>><?php _e('Deactivate', 'wooyellowcube');?></a>
                 <input type="hidden" class="wooyellowcube-product-variation-id" value="<?php echo $variation_id?>" />
               <?php else: ?>
                 <a href="#" onclick="return false;" class="button <?php if(!$button_disable): ?>wooyellowcube-product-variation-send<?php endif; ?>" <?php if($button_disable) echo 'disabled="disabled"'; ?>><?php _e('Insert', 'wooyellowcube'); ?></a>

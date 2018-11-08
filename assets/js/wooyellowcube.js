@@ -77,7 +77,7 @@ jQuery(document).ready(
         );
 
         /**
-    * Metabox - Product - Remove to YellowCube
+    * Metabox - Product - Remove from YellowCube
     */
         $('#wooyellowcube-product-remove').on(
             'click', function () {
@@ -244,7 +244,7 @@ jQuery(document).ready(
         /**
     * Metabox - Product - Remove to YellowCube
     */
-        $('.wooyellowcube-product-variation-desactivate').on(
+        $('.wooyellowcube-product-variation-deactivate').on(
             'click', function () {
 
                 // Ajax call
