@@ -1083,6 +1083,10 @@ class WooYellowCube
 
                             // get the product object
                             $product = wc_get_product($itemIdentifier);
+                            if (!$product) {
+                              // Order obsolete, product likely deleted.
+                              continue;
+                            }
 
                             // Skip products if virtual or SKU missing.
                             if ($product->get_sku() != '' && $product->get_virtual() == false) {
