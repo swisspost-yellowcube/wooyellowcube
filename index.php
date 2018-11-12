@@ -38,8 +38,13 @@ use YellowCube\WAB\Position;
 
 class WooYellowCube
 {
+    /**
+     * @var \YellowCube\Service
+     */
     public $yellowcube;
+
     public $defaultLanguage = 'en';
+
     public $defaultWSDL = 'https://service-test.swisspost.ch/apache/yellowcube-test/?wsdl';
 
     /**
@@ -153,45 +158,52 @@ class WooYellowCube
         // Get all orders that don't have status to 2 and dated more than 10 days.
         $orders = $wpdb->get_results('SELECT * FROM wooyellowcube_orders WHERE status != 2 AND created_at > '.(time() - $days));
 
+        // Delete records if order was deleted. This doesn't scale.
+        // @todo join to order table.
+        foreach ($orders as $order) {
+            $order_id = $order->id_order;
+            $order_object = wc_get_order((int) $order_id);
+            if (!$order_object) {
+                // Article deleted, drop record.
+                $wpdb->delete(
+                    'wooyellowcube_orders',
+                    array(
+                        'id_order' => $order_id,
+                    )
+                );
+            }
+        }
+
         if (count($orders) > 0) {
-            // Loop each orders
-            foreach ($orders as $order) {
-                $order_id = $order->id_order;
+            $replies = $this->yellowcube->getYCCustomerOrderReply();
+
+            // Process each reply.
+            foreach ($replies as $reply) {
+                $header = $reply->getCustomerOrderHeader();
+                $order_id = $header->getCustomerOrderNo();
+
                 $order_object = wc_get_order((int)$order_id);
                 if (!$order_object) {
-                    // Article deleted, drop record.
-                    $wpdb->delete(
-                        'wooyellowcube_orders',
-                        array(
-                          'id_order' => $order_id,
-                        )
-                    );
+                    // We don't know this order. Skip.
                     continue;
                 }
-                $order_number = $order_object->get_order_number();
-                $order_final = (trim($order_number) == '') ? $order_id : $order_number;
 
-                $replies = $this->yellowcube->getYCCustomerOrderReply($order_object->get_order_number());
+                $track = $header->getPostalShipmentNo();
 
-                foreach ($replies as $reply) {
-                    $header = $reply->getCustomerOrderHeader();
-                    $track = $header->getPostalShipmentNo();
+                $wpdb->update(
+                    'wooyellowcube_orders',
+                    array(
+                        'status' => 2,
+                        'yc_shipping' => $track,
+                    ),
+                    array(
+                        'id_order' => $order_id,
+                    )
+                );
 
-                    // @todo only one track & trace number is supported.
-                    $wpdb->update(
-                        'wooyellowcube_orders',
-                        array(
-                            'status' => 2,
-                            'yc_shipping' => $track,
-                        ),
-                        array(
-                            'id_order' => $order_id,
-                        )
-                    );
+                $this->log_create(1, 'WAR-SHIPMENT DELIVERED', $order_id, $order_id, 'Track & Trace received for order '.$order_id.' : '.$track);
+                $order_object->update_status('completed', __('Your order has been shipped', 'wooyellowcube'), false);
 
-                    $this->log_create(1, 'WAR-SHIPMENT DELIVERED', $order_final, $order_final, 'Track & Trace received for order '.$order_id.' : '.$track);
-                    $order_object->update_status('completed', __('Your order has been shipped', 'wooyellowcube'), false);
-                }
             }
         }
     }
@@ -1322,6 +1334,7 @@ class WooYellowCube
             $this->update_stock();
         }
 
+        // Cleanup logs.
         if (get_option('wooyellowcube_logs') > 1) {
             $date_gap = get_option('wooyellowcube_logs') * 60 * 60 * 24;
             $wpdb->query("DELETE FROM wooyellowcube_logs WHERE created_at < ".(time() - $date_gap));
