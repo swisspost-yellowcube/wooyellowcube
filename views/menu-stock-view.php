@@ -2,7 +2,7 @@
 
 global $wpdb, $wooyellowcube;
 
-$product_id = htmlspecialchars($_GET['id']);
+$product_id = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : 0;
 
 $product = wc_get_product((int)$product_id);
 if (!$product) {
