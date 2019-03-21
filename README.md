@@ -4,9 +4,11 @@ WooYellowCube allow the synchronization between WooCommerce and YellowCube (Swis
 Swiss Post offers an all-in logistics solution for distance selling with YellowCube. The range of services covers goods receipt, storage, picking, packaging, fast shipping, and returns management.
 
 Requirements:
-* WordPress 4.9.8+
-* WooCommerce 3.4.7+, also tested with 3.5.0
-* PHP 7
+* WordPress 4.9.8+, tested up to 5.1.1
+* WooCommerce 3.4.7+, tested up to 3.5.7
+* PHP 7+, tested up to 7.2
+
+CAUTION: Before updating to WordPress 5.x, update WooCommerce first!
 
 ## Documentation
 
