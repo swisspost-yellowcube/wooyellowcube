@@ -1086,7 +1086,7 @@ class WooYellowCube
                         $orderItemsCount = 0;
 
                         foreach ($orderItems as $key => $orderItem) {
-                            $orderItemsCount = $orderItemsCount + 1;
+                            $orderItemsCount++;
 
                             // item identifier
                             $itemIdentifier = 0;
@@ -1403,16 +1403,15 @@ class WooYellowCube
                     // get product informations
                     $articleSKU = $article->getArticleNo();
                     $articleInformations = $this->retrieveProductBySKU($articleSKU);
-                    if (!$articleInformations) {
-                      // This product doesn't exist in WooCommerce.
-                      continue;
+                    $articleID = 0;
+                    if ($articleInformations) {
+                      // get product ID
+                      $articleID = intval($articleInformations->post_id);
+                      //$product = wc_get_product($articleID);
                     }
 
-                    // get product ID
-                    $articleID = intval($articleInformations->post_id);
-
                     // get product object (WooCommerce)
-                    if ($product = wc_get_product($articleID)) {
+                    if (TRUE) {
 
                         // insert the stock information in database
                         $wpdb->insert(
@@ -1420,7 +1419,7 @@ class WooYellowCube
                             array(
                                 'product_id' => $articleID,
                                 'product_name' => $article->getArticleDescription(),
-                                'woocommerce_stock' => $product->get_stock_quantity(),
+                                //'woocommerce_stock' => $product->get_stock_quantity(),
                                 'yellowcube_stock' => (string)$article->getQuantityUOM(),
                                 'yellowcube_date' => time(),
                                 'yellowcube_articleno' => $article->getArticleNo(),
@@ -1441,7 +1440,7 @@ class WooYellowCube
                         );
 
                         // update the number of inserted article
-                        $countInsertedArticle = $countInsertedArticle + 1;
+                        $countInsertedArticle++;
                     }
                 }
             }
