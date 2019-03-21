@@ -8,7 +8,9 @@ Requirements:
 * WooCommerce 3.4.7+, tested up to 3.5.7
 * PHP 7+, tested up to 7.2
 
-CAUTION: Before updating to WordPress 5.x, update WooCommerce first!
+CAUTION:
+* Before updating to WordPress 5.x, update WooCommerce first!
+* NOT tested with Gutenberg
 
 ## Documentation
 
