@@ -13,7 +13,7 @@ $yellowcube_order = $wpdb->get_row('SELECT * FROM wooyellowcube_orders WHERE id_
     <!-- Current status -->
     <div>
         <?php
-        switch($yellowcube_order->yc_response){
+        switch($yellowcube_order->yc_response) {
         case 0: echo '<div class="yellowcube-error"><u>Error</u>'.$yellowcube_order->yc_status_text.'</div>'; 
             break;
         case 1: echo '<div class="yellowcube-pending"><u>Pending</u>'.$yellowcube_order->yc_status_text.'</div>'; 
@@ -68,7 +68,9 @@ $yellowcube_order = $wpdb->get_row('SELECT * FROM wooyellowcube_orders WHERE id_
       <!-- Order status is not 100 -->
       <div>
         <p><small><strong><u>Important:</u></strong> <?php _e('All order information has to be saved before sending it to YellowCube');?></p>
+          <?php if($yellowcube_order->yc_response == 0) : ?>
         <p><small>There is an error sent from YellowCube. Refer to the error message above or contact YellowCube to get help.</small></p>
+          <?php endif; ?>
         <p><a href="#" onclick="return false;" class="button-primary" id="wooyellowcube-order-again"><?php _e('Send this order again to YellowCube', 'wooyellowcube'); ?></a></p>
       </div>
         <?php endif; ?>
