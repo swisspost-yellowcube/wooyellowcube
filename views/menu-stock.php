@@ -19,7 +19,7 @@ $pagination_first = ($pagination_current_page - 1) * $pagination_per_page;
 
 
 // get the product stock inventory from database
-$stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowcube_articleno LIMIT '.$pagination_first.', '.$pagination_per_page);
+$stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowcube_articleno ORDER BY IF(product_id, 1, 0) DESC, yellowcube_articleno LIMIT '.$pagination_first.', '.$pagination_per_page);
 ?>
 
 <h1><?php _e('WooYellowCube', 'wooyellowcube'); ?> - <?php _e('Stock management', 'wooyellowcube');?></h1>
