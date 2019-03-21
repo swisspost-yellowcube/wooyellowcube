@@ -404,38 +404,39 @@ class WooYellowCube
         if (isset($_POST['bulking_execute'])) {
             $option = htmlspecialchars($_POST['bulking_actions']);
 
+            // Force to refresh inventory from YC.
             if ($option == 3) {
                 $this->update_stock();
             }
 
             if (isset($_POST['products'])) {
                 foreach ($_POST['products'] as $product_id) {
+
+                    // Send ART to YC.
                     if ($option == 1) {
                         $this->YellowCube_ART($product_id, 'update');
                         $status = 1;
                     }
 
+                    // Update WooCommerce Stock from YC.
                     if ($option == 2) {
 
-                        // Get the stock row
-                        $stock_row = $wpdb->get_results('SELECT * FROM wooyellowcube_stock WHERE product_id=\'' . $product_id . '\'');
-                        $quantity = 0;
-                        $product_id = 0;
-
+                        // Get the stock row(s).
+                        $stock_row = $wpdb->get_results('SELECT * FROM wooyellowcube_stock WHERE product_id="' . $product_id . '"');
                         if (count($stock_row) > 0) {
+                            $quantity = 0;
+                            $product_id = 0;
+
                             foreach ($stock_row as $row) {
                                 $quantity = $quantity + $row->yellowcube_stock;
                                 $product_id = $row->product_id;
                             }
-                        } else {
-                            $quantity = $stock_row->yellowcube_stock;
-                            $product_id = $stock_row->product_id;
+                            wc_update_product_stock($product_id, $quantity);
                         }
-
-                        wc_update_product_stock($product_id, $quantity);
                     }
                 }
 
+                // Always force refresh inventory after stock update.
                 if ($option == 2) {
                     $this->update_stock();
                     $status = 2;
