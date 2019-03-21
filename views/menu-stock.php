@@ -109,7 +109,10 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
     <?php
     $url_page = 'admin.php?page=wooyellowcube-stock';
 
-    if($pagination_current_page == 1) {
+    if($pagination_total_pages == 1) {
+        // No pager.
+    }elseif($pagination_current_page == 1) {
+        // @todo check total pages and skip "Next" here.
         echo '<p><a href="'.$url_page.'&paginate=2" class="button">'.__('Next entries', 'wooyellowucbe').' ></a></p>';
     }elseif($pagination_current_page == $pagination_total_pages) {
         echo '<p><a href="'.$url_page.'&paginate='.($pagination_current_page - 1).'" class="button">< '.__('Previous entries', 'wooyellowcube').'</a></p>';
