@@ -5,7 +5,7 @@ global $wpdb, $wooyellowcube, $status;
 $total_entries = $wpdb->get_row('SELECT COUNT(DISTINCT yellowcube_articleno) AS count_entries FROM wooyellowcube_stock');
 
 // pagination settings
-$pagination_per_page = 10;
+$pagination_per_page = 50;
 $pagination_total_pages = ceil($total_entries->count_entries / $pagination_per_page);
 
 // get current pagination page
