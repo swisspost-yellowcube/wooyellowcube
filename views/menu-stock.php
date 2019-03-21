@@ -73,7 +73,7 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
         <td><?php echo $woocommerce_stock?></td>
         <td>
             <?php
-            $yellowcube_stock = $wpdb->get_var('SELECT SUM(yellowcube_stock) FROM wooyellowcube_stock WHERE product_id='.$stock->product_id);
+            $yellowcube_stock = $wpdb->get_var('SELECT SUM(yellowcube_stock) FROM wooyellowcube_stock WHERE yellowcube_articleno="'.$stock->yellowcube_articleno.'"');
         ?>
         <?php echo $yellowcube_stock?>
 
