@@ -914,40 +914,44 @@ class WooYellowCube
     public function getShippingFromOrder($wcOrder)
     {
 
-        // return informations structure
-        $shippingMethods = array();
-        $shippingMethods['main'] = '';
-        $shippingMethods['additional'] = '';
+        // Default shipping info.
+        $shipping = array();
+        $shipping['main'] = new BasicShippingServices(BasicShippingServices::ECO);
+        $shipping['additional'] = 'NONE';
 
-        // get shipping methods
+        // Get shipping methods.
         $shipping_methods = $wcOrder->get_shipping_methods();
-        $shipping_name = '';
 
-        // loop on each shipping method available for this order
-        foreach ($shipping_methods as $shippingMethod) {
-            // get shipping method informations
-            $shippingMethodDatas = $shippingMethod->get_data();
-            $shippingMethodID = $shippingMethodDatas['method_id'];
-            $shippingMethodIDExtract = explode(':', $shippingMethodID);
-            $shippingMethodIdentifier = $shippingMethodIDExtract[1];
-        }
-
-        // get shipping methods available
+        // Get YC shipping methods available.
         $shipping_saved_methods = unserialize(get_option('wooyellowcube_shipping_methods'));
 
-        switch ($shipping_saved_methods[$shippingMethodIdentifier]['basic']) {
-        case 'ECO': $shippingMethods['main'] = new BasicShippingServices(BasicShippingServices::ECO);
-            break;
-        case 'PRI': $shippingMethods['main'] = new BasicShippingServices(BasicShippingServices::PRI);
-            break;
-        case 'PICKUP': $shippingMethods['main'] = new BasicShippingServices(BasicShippingServices::PICKUP);
-            break;
-        default: $shippingMethods['main'] = new BasicShippingServices(BasicShippingServices::ECO);
+        // Get first shipping method identifier available in YC.
+        foreach ($shipping_methods as $shippingMethod) {
+            $shippingMethodIdentifier = $shippingMethod->get_instance_id();
+
+            // Skip methods that are not configured for YC.
+            if (!isset($shipping_saved_methods[$shippingMethodIdentifier])) {
+              continue;
+            }
+
+            switch ($shipping_saved_methods[$shippingMethodIdentifier]['basic']) {
+              case 'ECO':
+                $shipping['main'] = new BasicShippingServices(BasicShippingServices::ECO);
+                break;
+              case 'PRI':
+                $shipping['main'] = new BasicShippingServices(BasicShippingServices::PRI);
+                break;
+              case 'PICKUP':
+                $shipping['main'] = new BasicShippingServices(BasicShippingServices::PICKUP);
+                break;
+            }
+
+          $shipping['additional'] = $shipping_saved_methods[$shippingMethodIdentifier]['additional'];
+
             break;
         }
 
-        $shippingMethods['additional'] = $shipping_saved_methods[$shippingMethodIdentifier]['additional'];
-        return $shippingMethods;
+        return $shipping;
     }
 
     public function isShippingAvailable($wcOrder)
@@ -959,16 +963,18 @@ class WooYellowCube
           return false;
         }
 
+        // Get YC shipping methods available
+        $shipping_saved_methods = unserialize(get_option('wooyellowcube_shipping_methods'));
+
         $shippingInstanceID = null;
         // loop on each shipping method available for this order
         foreach ($shipping_methods as $shippingMethod) {
+            // @todo this does not properly support multiple shipping methods.
             // get shipping method informations
             $shippingMethodDatas = $shippingMethod->get_data();
             $shippingInstanceID = $shippingMethodDatas['instance_id'];
         }
 
-        // get shipping methods available
-        $shipping_saved_methods = unserialize(get_option('wooyellowcube_shipping_methods'));
         return ($shipping_saved_methods[$shippingInstanceID]['status'] == 0) ? false : true;
     }
 
@@ -1033,6 +1039,7 @@ class WooYellowCube
 
         // get the current order
         if ($wcOrder = wc_get_order($order_id)) {
+            // @todo Allow manual YC submission if disabled.
             if ($this->isShippingAvailable($wcOrder)) {
                 if (!$this->alreadySentYellowCube($order_id)) {
 
