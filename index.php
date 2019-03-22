@@ -188,6 +188,8 @@ class WooYellowCube
                     continue;
                 }
 
+                // @todo Check reply status code.
+
                 $track = $header->getPostalShipmentNo();
 
                 $wpdb->update(
@@ -1329,16 +1331,31 @@ class WooYellowCube
 
         // Execute CRON
         if (($current_day != $cron_daily) || (isset($_GET['cron_daily']) != '')) {
+            // Avoid duplicate runs with a lock.
+            $upload_dir = wp_upload_dir();
+            $lockfile = $upload_dir['basedir'] . '/yellowcube.daily.lock';
+            $fp = fopen($lockfile, 'w');
+            if (!flock($fp, LOCK_EX | LOCK_NB)) {
+              // Could not get the lock.
+              return;
+            }
+
             // Update last execution date first, avoid re-run on error.
             update_option('wooyellowcube_cron_daily', date('Ymd'));
 
-            $this->update_stock();
-        }
 
-        // Cleanup logs.
-        if (get_option('wooyellowcube_logs') > 1) {
-            $date_gap = get_option('wooyellowcube_logs') * 60 * 60 * 24;
-            $wpdb->query("DELETE FROM wooyellowcube_logs WHERE created_at < ".(time() - $date_gap));
+            $this->update_stock();
+
+
+            // Cleanup logs.
+            if (get_option('wooyellowcube_logs') > 1) {
+                $date_gap = get_option('wooyellowcube_logs') * 60 * 60 * 24;
+                $wpdb->query("DELETE FROM wooyellowcube_logs WHERE created_at < ".(time() - $date_gap));
+            }
+
+            // Release lock and close file.
+            flock($fp, LOCK_UN);
+            fclose($fp);
         }
     }
 
