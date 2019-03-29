@@ -1209,11 +1209,16 @@ class WooYellowCube
 
   /**
    * Get quantity sum of pending orders from product.
+   *
+   * Cancelled orders are excluded.
    */
   public function get_product_order_pending_sum($product_id)
   {
     global $wpdb;
     $pending = $wpdb->get_var('SELECT SUM(order_item_sum.meta_value) FROM wp_woocommerce_order_items 
+INNER JOIN wp_posts
+  ON wp_posts.ID = wp_woocommerce_order_items.order_id
+  AND wp_posts.post_status != "wc-cancelled"
 INNER JOIN wp_woocommerce_order_itemmeta AS order_item_prod
   ON order_item_prod.order_item_id = wp_woocommerce_order_items.order_item_id
   AND order_item_prod.meta_key = "_product_id"
