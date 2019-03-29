@@ -433,6 +433,10 @@ class WooYellowCube
                                 $quantity = $quantity + $row->yellowcube_stock;
                                 $product_id = $row->product_id;
                             }
+
+                            // Deduct pending order count.
+                            $quantity = $quantity - $this->get_product_order_pending_sum($row->product_id);
+
                             wc_update_product_stock($product_id, $quantity);
                         }
                     }
@@ -1206,10 +1210,10 @@ class WooYellowCube
   /**
    * Get quantity sum of pending orders from product.
    */
-  public function get_product_order_sum($product_id)
+  public function get_product_order_pending_sum($product_id)
   {
     global $wpdb;
-    return $wpdb->get_var('SELECT SUM(order_item_sum.meta_value) FROM wp_woocommerce_order_items 
+    $pending = $wpdb->get_var('SELECT SUM(order_item_sum.meta_value) FROM wp_woocommerce_order_items 
 INNER JOIN wp_woocommerce_order_itemmeta AS order_item_prod
   ON order_item_prod.order_item_id = wp_woocommerce_order_items.order_item_id
   AND order_item_prod.meta_key = "_product_id"
@@ -1221,6 +1225,8 @@ LEFT JOIN wooyellowcube_orders
   ON wooyellowcube_orders.id_order = wp_woocommerce_order_items.order_id
   AND wooyellowcube_orders.status != 2
 WHERE wp_woocommerce_order_items.order_item_type="line_item"');
+
+  return $pending ?: 0;
   }
 
 
