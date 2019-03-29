@@ -57,8 +57,7 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
         <th><strong><?php _e('YellowCube stock', 'wooyellowcube'); ?></strong></th>
         <th><strong><?php _e('YellowCube date', 'wooyellowcube'); ?></strong></th>
         <th><strong><?php _e('Shop & YellowCube Stock Similarity', 'wooyellowcube'); ?></strong></th>
-        <?php if(get_option('wooyellowcube_lotmanagement') == 1) : ?><th></th><?php 
-        endif; ?>
+        <th><strong><?php _e('Details', 'wooyellowcube'); ?></strong></th>
       </tr>
     </thead>
     <tbody>
@@ -91,13 +90,11 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
                 <span><?php _e('Product not in WooCommerce', 'wooyellowcube'); ?></span>
             <?php endif; ?>
         </td>
-        <?php if(get_option('wooyellowcube_lotmanagement') == 1) : ?>
         <td>
             <?php if(!empty($stock->product_id)) : ?>
-            <a href="admin.php?page=wooyellowcube-stock-view&id=<?php echo $stock->product_id?>"><?php _e('View lots', 'wooyellowcube'); ?></a>
+            <a href="admin.php?page=wooyellowcube-stock-view&id=<?php echo $stock->product_id?>"><?php _e('View', 'wooyellowcube'); ?></a>
             <?php endif; ?>
         </td>
-        <?php endif; ?>
 
       </tr>
 

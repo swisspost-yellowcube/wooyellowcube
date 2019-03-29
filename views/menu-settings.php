@@ -71,15 +71,6 @@
     <input type="text" name="authentificationFile" id="authentificationFile" value="<?php echo get_option('wooyellowcube_authentificationFile'); ?>" <?php if(get_option('wooyellowcube_authentification') == 0) echo 'disabled="disabled"'; ?> size="50" />
   </p>
 
-  <h2><?php _e('Lot management', 'wooyellowcube'); ?></h2>
-  <p>
-	  <label for="lotmanagement"><?php _e('Lot management', 'wooyellowcube'); ?></label>
-	  <select name="lotmanagement" id="lotmanagement">
-		  <option value="0" <?php if(get_option('wooyellowcube_lotmanagement') == 0) echo 'selected="selected"'; ?>><?php _e('Deactivated', 'wooyellowcube'); ?></option>
-		  <option value="1" <?php if(get_option('wooyellowcube_lotmanagement') == 1) echo 'selected="selected"'; ?>><?php _e('Activated', 'wooyellowcube'); ?></option>
-	  </select>
-  </p>
-
   <h2><?php _e('Logs', 'wooyellowcube');?></h2>
   <p>
 	  <label for="logs"><?php _e('Day before logs are removed from database', 'wooyellowcube'); ?></label>
