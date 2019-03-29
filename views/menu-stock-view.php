@@ -1,6 +1,6 @@
 <?php
 
-global $wpdb, $wooyellowcube;
+global $wpdb;
 
 $product_id = isset($_GET['id']) ? htmlspecialchars($_GET['id']) : 0;
 

@@ -1,5 +1,5 @@
 <?php
-global $wpdb, $wooyellowcube, $status;
+global $wpdb, $status, $this;
 
 // count the number of entries in wooyellowcube stocks
 $total_entries = $wpdb->get_row('SELECT COUNT(DISTINCT yellowcube_articleno) AS count_entries FROM wooyellowcube_stock');
@@ -66,6 +66,15 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
     // get WooCommerce stock
     $product = wc_get_product($stock->product_id);
     $woocommerce_stock = ($product) ? $product->get_stock_quantity() : false;
+
+
+    // Get all woocommerce orders that are not submitted to YC yet.
+
+
+    // Get all yc orders that don't have status to 2 and dated more than 10 days.
+    $days = 10 * 60 * 60 * 24;
+    $pending = $this->get_product_order_sum($stock->product_id);
+
     ?>
       <tr>
         <td><input type="checkbox" name="products[]" value="<?php echo $stock->product_id?>" /> <?php echo $stock->yellowcube_articleno?></td>
@@ -74,7 +83,14 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
             <?php
             $yellowcube_stock = $wpdb->get_var('SELECT SUM(yellowcube_stock) FROM wooyellowcube_stock WHERE yellowcube_articleno="'.$stock->yellowcube_articleno.'"');
         ?>
-        <?php echo $yellowcube_stock?>
+        <?php
+            echo $yellowcube_stock;
+            if ($pending) {
+                echo ' - ';
+                echo $pending;
+            }
+
+            ?>
 
          </td>
         <td><?php echo date('d/m/Y H:i', $stock->yellowcube_date)?></td>

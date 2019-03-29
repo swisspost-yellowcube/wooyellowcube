@@ -1203,7 +1203,28 @@ class WooYellowCube
         return $wpdb->get_row('SELECT yc_response, yc_status_code FROM wooyellowcube_orders WHERE id_order=\''.$order_id.'\' ');
     }
 
-    /**
+  /**
+   * Get quantity sum of pending orders from product.
+   */
+  public function get_product_order_sum($product_id)
+  {
+    global $wpdb;
+    return $wpdb->get_var('SELECT SUM(order_item_sum.meta_value) FROM wp_woocommerce_order_items 
+INNER JOIN wp_woocommerce_order_itemmeta AS order_item_prod
+  ON order_item_prod.order_item_id = wp_woocommerce_order_items.order_item_id
+  AND order_item_prod.meta_key = "_product_id"
+  AND order_item_prod.meta_value = "'.$product_id.'"
+INNER JOIN wp_woocommerce_order_itemmeta AS order_item_sum
+  ON order_item_sum.order_item_id = wp_woocommerce_order_items.order_item_id
+  AND order_item_sum.meta_key = "_qty"
+LEFT JOIN wooyellowcube_orders
+  ON wooyellowcube_orders.id_order = wp_woocommerce_order_items.order_id
+  AND wooyellowcube_orders.status != 2
+WHERE wp_woocommerce_order_items.order_item_type="line_item"');
+  }
+
+
+  /**
      * Get product object by SKU
      *
      * @todo Unused, remove?
@@ -1445,6 +1466,7 @@ class WooYellowCube
                                 'product_name' => $article->getArticleDescription(),
                                 //'woocommerce_stock' => $product->get_stock_quantity(),
                                 'yellowcube_stock' => (string)$article->getQuantityUOM(),
+                                // @todo Update date to stock export date.
                                 'yellowcube_date' => time(),
                                 'yellowcube_articleno' => $article->getArticleNo(),
                                 'yellowcube_lot' => $article->getLot() ?: '',
