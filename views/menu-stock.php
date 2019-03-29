@@ -73,7 +73,10 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
 
     // Get all yc orders that don't have status to 2 and dated more than 10 days.
     $days = 10 * 60 * 60 * 24;
-    $pending = $this->get_product_order_pending_sum($stock->product_id);
+    $pending = 0;
+    if (!empty($product)) {
+      $pending = $this->get_product_order_pending_sum($stock->product_id);
+    }
 
     ?>
       <tr>
@@ -85,7 +88,9 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
         ?>
         <?php
             echo $yellowcube_stock;
-            if ($pending) {
+
+            // Display pending order quantity for product.
+            if ($pending > 0) {
                 echo ' - ';
                 echo $pending;
             }
