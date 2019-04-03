@@ -1212,7 +1212,7 @@ class WooYellowCube
    *
    * Cancelled orders are excluded.
    */
-  public function get_product_order_pending_sum($product_id)
+  public static function get_product_order_pending_sum($product_id)
   {
     global $wpdb;
     $pending = $wpdb->get_var('SELECT SUM(order_item_sum.meta_value) FROM wp_woocommerce_order_items 

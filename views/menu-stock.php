@@ -1,5 +1,5 @@
 <?php
-global $wpdb, $status, $this;
+global $wpdb, $status;
 
 // count the number of entries in wooyellowcube stocks
 $total_entries = $wpdb->get_row('SELECT COUNT(DISTINCT yellowcube_articleno) AS count_entries FROM wooyellowcube_stock');
@@ -75,7 +75,7 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
     $days = 10 * 60 * 60 * 24;
     $pending = 0;
     if (!empty($product)) {
-      $pending = $this->get_product_order_pending_sum($stock->product_id);
+      $pending = WooYellowCube::get_product_order_pending_sum($stock->product_id);
     }
 
     ?>
