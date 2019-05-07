@@ -87,7 +87,7 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
 
         <td>
             <?php if(!empty($product)) : ?>
-                <?php if($yellowcube_stock == $woocommerce_stock) : ?>
+                <?php if($yellowcube_stock == ($woocommerce_stock+$pending)) : ?>
                   <span style="color: #14972B;"><strong><?php _e('Same stock', 'wooyellowcube'); ?></strong></span>
                 <?php else: ?>
                   <span style="color: #CE1A1A;"><strong><?php _e('Different stock', 'wooyellowcube'); ?></strong></span>
