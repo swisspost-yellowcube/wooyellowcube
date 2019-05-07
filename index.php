@@ -359,6 +359,10 @@ class WooYellowCube
                 }
             }
 
+            // Remove the current stock information.
+            $wpdb->query('DELETE FROM wooyellowcube_stock');
+            $wpdb->query('DELETE FROM wooyellowcube_stock_lots');
+
             // Reset execution times so crons are triggered again.
             update_option('wooyellowcube_cron_response', 0);
             update_option('wooyellowcube_cron_daily', 0);
@@ -1448,7 +1452,7 @@ WHERE wp_woocommerce_order_items.order_item_type="line_item"');
             // get yellowcube inventory
             $articles = $this->yellowcube->getInventory();
 
-            // remove the current stock informations
+            // remove the current stock information.
             $wpdb->query('DELETE FROM wooyellowcube_stock');
             $wpdb->query('DELETE FROM wooyellowcube_stock_lots');
 
