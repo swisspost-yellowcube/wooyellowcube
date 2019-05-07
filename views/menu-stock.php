@@ -52,7 +52,7 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
   <table class="wp-list-table widefat fixed striped pages">
     <thead>
       <tr>
-        <th><strong><?php _e('Product name (SKU)', 'wooyellowcube'); ?></strong></th>
+        <th class="column-primary"><strong><?php _e('Product name (SKU)', 'wooyellowcube'); ?></strong></th>
         <th><strong><?php _e('Shop stock', 'wooyellowcube'); ?></strong></th>
         <th><strong><?php _e('Shop pending', 'wooyellowcube'); ?></strong></th>
         <th><strong><?php _e('YellowCube stock', 'wooyellowcube'); ?></strong></th>

@@ -22,7 +22,7 @@ if(count($yellowcube_products_lots)) {
 
     echo '<table class="wp-list-table widefat fixed striped pages">
 		<tr>
-			<th><strong>'.__('Lot', 'wooyellowcube').'</strong></th>
+			<th class=" column-primary"><strong>'.__('Lot', 'wooyellowcube').'</strong></th>
 			<th><strong>'.__('Quantity', 'wooyellowcube').'</strong></th>
 			<th><strong>'.__('Expiration date', 'wooyellowcube').'</strong></th>
 		</tr>';

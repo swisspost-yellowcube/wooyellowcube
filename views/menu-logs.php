@@ -32,7 +32,7 @@ if(count($yellowcube_activities) == 0) : ?>
 <table class="wp-list-table widefat fixed striped datatable ">
   <thead>
     <tr>
-      <th width="10%"><?php _e('Date', 'wooyellowcube'); ?></th>
+      <th class="column-primary" width="10%"><?php _e('Date', 'wooyellowcube'); ?></th>
       <th width="10%"><?php _e('Reference', 'wooyellowcube'); ?></th>
       <th width="15%"><?php _e('Action', 'wooyellowcube'); ?></th>
       <th width="10%"><?php _e('Order / Product', 'wooyellowcube'); ?></th>

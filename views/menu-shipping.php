@@ -46,7 +46,7 @@ if(is_array($shippingZones)){
                 <table class="wp-list-table widefat striped pages">
                     <thead>
                         <tr>
-                            <th><strong>Name</strong></th>
+                            <th class="column-primary"><strong>Name</strong></th>
                             <th><strong>Status</strong></th>
                             <th><strong>BasicShippingServices</strong></th>
                             <th><strong>AdditionalShippingServices</strong></th>
