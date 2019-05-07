@@ -53,10 +53,11 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
     <thead>
       <tr>
         <th><strong><?php _e('Product name (SKU)', 'wooyellowcube'); ?></strong></th>
-        <th><strong><?php _e('WooCommerce stock', 'wooyellowcube'); ?></strong></th>
+        <th><strong><?php _e('Shop stock', 'wooyellowcube'); ?></strong></th>
+        <th><strong><?php _e('Shop pending', 'wooyellowcube'); ?></strong></th>
         <th><strong><?php _e('YellowCube stock', 'wooyellowcube'); ?></strong></th>
         <th><strong><?php _e('YellowCube date', 'wooyellowcube'); ?></strong></th>
-        <th><strong><?php _e('Shop & YellowCube Stock Similarity', 'wooyellowcube'); ?></strong></th>
+        <th><strong><?php _e('Stock Similarity', 'wooyellowcube'); ?></strong></th>
         <th><strong><?php _e('Details', 'wooyellowcube'); ?></strong></th>
       </tr>
     </thead>
@@ -66,12 +67,10 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
     // get WooCommerce stock
     $product = wc_get_product($stock->product_id);
     $woocommerce_stock = ($product) ? $product->get_stock_quantity() : false;
+    $yellowcube_stock = $wpdb->get_var('SELECT SUM(yellowcube_stock) FROM wooyellowcube_stock WHERE yellowcube_articleno="'.$stock->yellowcube_articleno.'"');
 
 
-    // Get all woocommerce orders that are not submitted to YC yet.
-
-
-    // Get all yc orders that don't have status to 2 and dated more than 10 days.
+    // Get all woocommerce orders that are not submitted to YC yet and not cancelled.
     $days = 10 * 60 * 60 * 24;
     $pending = 0;
     if (!empty($product)) {
@@ -81,23 +80,9 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
     ?>
       <tr>
         <td><input type="checkbox" name="products[]" value="<?php echo $stock->product_id?>" /> <?php echo $stock->yellowcube_articleno?></td>
-        <td><?php echo $woocommerce_stock?></td>
-        <td>
-            <?php
-            $yellowcube_stock = $wpdb->get_var('SELECT SUM(yellowcube_stock) FROM wooyellowcube_stock WHERE yellowcube_articleno="'.$stock->yellowcube_articleno.'"');
-        ?>
-        <?php
-            echo $yellowcube_stock;
-
-            // Display pending order quantity for product.
-            if ($pending > 0) {
-                echo ' - ';
-                echo $pending;
-            }
-
-            ?>
-
-         </td>
+        <td><?php echo $woocommerce_stock; ?></td>
+        <td><?php if ($pending > 0) { echo $pending; } ?></td>
+        <td><?php echo $yellowcube_stock; ?></td>
         <td><?php echo date('d/m/Y H:i', $stock->yellowcube_date)?></td>
 
         <td>
