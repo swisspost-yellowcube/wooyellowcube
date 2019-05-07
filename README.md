@@ -5,7 +5,7 @@ Swiss Post offers an all-in logistics solution for distance selling with YellowC
 
 Requirements:
 * WordPress 4.9.8+, tested up to 5.1.1
-* WooCommerce 3.4.7+, tested up to 3.5.7
+* WooCommerce 3.4.7+, tested up to 3.6.2
 * PHP 7+, tested up to 7.2
 
 CAUTION:
