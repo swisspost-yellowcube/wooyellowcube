@@ -52,12 +52,13 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
   <table class="wp-list-table widefat fixed striped pages">
     <thead>
       <tr>
-        <th class="column-primary"><strong><?php _e('Product name (SKU)', 'wooyellowcube'); ?></strong></th>
+        <th class="column-primary"><strong><?php _e('SKU', 'wooyellowcube'); ?></strong></th>
+        <th><strong><?php _e('Shop product', 'wooyellowcube'); ?></strong></th>
         <th><strong><?php _e('Shop stock', 'wooyellowcube'); ?></strong></th>
         <th><strong><?php _e('Shop pending', 'wooyellowcube'); ?></strong></th>
         <th><strong><?php _e('YellowCube stock', 'wooyellowcube'); ?></strong></th>
         <th><strong><?php _e('YellowCube date', 'wooyellowcube'); ?></strong></th>
-        <th><strong><?php _e('Stock Similarity', 'wooyellowcube'); ?></strong></th>
+        <th><strong><?php _e('Stock similarity', 'wooyellowcube'); ?></strong></th>
         <th><strong><?php _e('Details', 'wooyellowcube'); ?></strong></th>
       </tr>
     </thead>
@@ -80,6 +81,12 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
     ?>
       <tr>
         <td><input type="checkbox" name="products[]" value="<?php echo $stock->product_id; ?>" /> <?php echo $stock->yellowcube_articleno; ?></td>
+        <td>
+          <?php if(!empty($product)) : ?>
+            <?php echo $product->get_name(); ?>
+          <?php endif; ?>
+        </td>
+
         <td><?php echo $woocommerce_stock; ?></td>
         <td><?php if ($pending > 0) { echo $pending; } ?></td>
         <td><?php echo $yellowcube_stock; ?></td>
