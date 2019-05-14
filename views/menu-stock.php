@@ -79,26 +79,26 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
 
     ?>
       <tr>
-        <td><input type="checkbox" name="products[]" value="<?php echo $stock->product_id?>" /> <?php echo $stock->yellowcube_articleno?></td>
+        <td><input type="checkbox" name="products[]" value="<?php echo $stock->product_id; ?>" /> <?php echo $stock->yellowcube_articleno; ?></td>
         <td><?php echo $woocommerce_stock; ?></td>
         <td><?php if ($pending > 0) { echo $pending; } ?></td>
         <td><?php echo $yellowcube_stock; ?></td>
-        <td><?php echo date('d/m/Y H:i', $stock->yellowcube_date)?></td>
+        <td><?php echo date('d/m/Y H:i', $stock->yellowcube_date); ?></td>
 
         <td>
             <?php if(!empty($product)) : ?>
-                <?php if($yellowcube_stock == ($woocommerce_stock+$pending)) : ?>
+                <?php if($yellowcube_stock == ($woocommerce_stock + $pending)) : ?>
                   <span style="color: #14972B;"><strong><?php _e('Same stock', 'wooyellowcube'); ?></strong></span>
                 <?php else: ?>
                   <span style="color: #CE1A1A;"><strong><?php _e('Different stock', 'wooyellowcube'); ?></strong></span>
                 <?php endif; ?>
             <?php else: ?>
-                <span><?php _e('Product not in WooCommerce', 'wooyellowcube'); ?></span>
+                <span><?php _e('Product not in Shop', 'wooyellowcube'); ?></span>
             <?php endif; ?>
         </td>
         <td>
             <?php if(!empty($stock->product_id)) : ?>
-            <a href="admin.php?page=wooyellowcube-stock-view&id=<?php echo $stock->product_id?>"><?php _e('View', 'wooyellowcube'); ?></a>
+            <a href="admin.php?page=wooyellowcube-stock-view&id=<?php echo $stock->product_id; ?>"><?php _e('View', 'wooyellowcube'); ?></a>
             <?php endif; ?>
         </td>
 
