@@ -1216,12 +1216,13 @@ class WooYellowCube
   /**
    * Get quantity sum of pending orders from product.
    *
-   * Cancelled orders are excluded.
+   * Completed and Cancelled orders are excluded.
+   * Only count orders that are stock reduced.
    */
   public static function get_product_order_pending_sum($product_id)
   {
     global $wpdb;
-    $pending = $wpdb->get_var('SELECT SUM(order_item_sum.meta_value) FROM wp_woocommerce_order_items 
+    $orders = $wpdb->get_results('SELECT wp_woocommerce_order_items.order_id, SUM(order_item_sum.meta_value) count FROM wp_woocommerce_order_items 
 INNER JOIN wp_posts
   ON wp_posts.ID = wp_woocommerce_order_items.order_id
   AND wp_posts.post_status != "wc-cancelled"
@@ -1235,9 +1236,24 @@ INNER JOIN wp_woocommerce_order_itemmeta AS order_item_sum
 LEFT JOIN wooyellowcube_orders
   ON wooyellowcube_orders.id_order = wp_woocommerce_order_items.order_id
   AND wooyellowcube_orders.status != 2
-WHERE wp_woocommerce_order_items.order_item_type="line_item"');
+WHERE wp_woocommerce_order_items.order_item_type="line_item"
+GROUP BY wp_woocommerce_order_items.order_id');
 
-  return $pending ?: 0;
+  $pending = 0;
+  foreach ($orders as $row) {
+    $order = wc_get_order( $row->order_id );
+
+    if ( $order ) {
+      $stock_reduced  = $order->get_data_store()->get_stock_reduced( $row->order_id );
+      if (!$stock_reduced) {
+        // Skip counting as pending.
+        continue;
+      }
+    }
+    $pending += $row->count;
+  }
+
+  return $pending;
   }
 
 
