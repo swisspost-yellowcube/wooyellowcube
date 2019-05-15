@@ -138,7 +138,7 @@ class WooYellowCube
           $this->yellowcube = new Service($soap_config);
             return true;
         } catch (Exception $e) {
-            $this->log_create(0, 'INIT-ERROR', null, null, __('SOAP WSDL not reachable', 'wooyellowcube'));
+            $this->log_create(0, 'INIT-ERROR', 0, 0, __('SOAP WSDL not reachable', 'wooyellowcube'));
             return false;
         }
     }
@@ -205,7 +205,7 @@ class WooYellowCube
                     )
                 );
 
-                $this->log_create(1, 'WAR-SHIPMENT DELIVERED', $order_id, $order_id, 'Track & Trace received for order '.$order_id.' : '.$track);
+                $this->log_create(1, 'WAR-SHIPMENT DELIVERED', 0, $order_id, 'Track & Trace received for order '.$order_id.' : '.$track);
                 $order_object->update_status('completed', __('Your order has been shipped', 'wooyellowcube'), false);
 
             }
@@ -842,7 +842,7 @@ class WooYellowCube
             $response_status = 0;
             $response_status_code = 0;
             $response_status_text = $e->getMessage();
-            $this->log_create(0, 'ART-'.$type, '', $wc_product_parent_ID, $e->getMessage());
+            $this->log_create(0, 'ART-'.$type, 0, $wc_product_parent_ID, $e->getMessage());
         }
 
         // Insert a product to YellowCube
@@ -1187,7 +1187,7 @@ class WooYellowCube
                         // an error as occured
                     } catch (Exception $e) {
                         $wcOrder->update_status('failed', $e->getMessage());
-                        $this->log_create(0, 'WAB-DELIVERY ORDER', '', $order_id, $e->getMessage());
+                        $this->log_create(0, 'WAB-DELIVERY ORDER', 0, $order_id, $e->getMessage());
                     }
                 }
             } else {
@@ -1359,7 +1359,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
                                 )
                             );
 
-                            $this->log_create(1, 'WAB-ACCEPTED', $execution->id_order, $execution->id_order, $response->getStatusText());
+                            $this->log_create(1, 'WAB-ACCEPTED', 0, $execution->id_order, $response->getStatusText());
                         }
                     } catch (Exception $e) {
                         $wpdb->update(
@@ -1375,7 +1375,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
                         );
 
                         wc_get_order($execution->id_order)->update_status('failed', $e->getMessage());
-                        $this->log_create(0, 'WAB-REFUSED', $execution->id_order, $execution->id_order, $response->getStatusText());
+                        $this->log_create(0, 'WAB-REFUSED', 0, $execution->id_order, $response->getStatusText());
                     }
                 }
             }
