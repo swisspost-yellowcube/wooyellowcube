@@ -654,7 +654,7 @@ class WooYellowCube
         // Get post ID
         $post_id = htmlspecialchars($_POST['post_id']);
         // Insert the order in YellowCube
-        $this->YellowCube_WAB($post_id);
+        $this->YellowCube_WAB($post_id, TRUE);
         exit();
     }
 
@@ -927,7 +927,7 @@ class WooYellowCube
         // Default shipping info.
         $shipping = array();
         $shipping['main'] = new BasicShippingServices(BasicShippingServices::ECO);
-        $shipping['additional'] = 'NONE';
+        $shipping['additional'] = new AdditionalShippingServices('NONE');
 
         // Get shipping methods.
         $shipping_methods = $wcOrder->get_shipping_methods();
@@ -956,7 +956,7 @@ class WooYellowCube
                 break;
             }
 
-          $shipping['additional'] = $shipping_saved_methods[$shippingMethodIdentifier]['additional'];
+          $shipping['additional'] = new AdditionalShippingServices($shipping_saved_methods[$shippingMethodIdentifier]['additional']);
 
             break;
         }
@@ -981,8 +981,8 @@ class WooYellowCube
         foreach ($shipping_methods as $shippingMethod) {
             // @todo this does not properly support multiple shipping methods.
             // get shipping method informations
-            $shippingMethodDatas = $shippingMethod->get_data();
-            $shippingInstanceID = $shippingMethodDatas['instance_id'];
+            $shippingMethodData = $shippingMethod->get_data();
+            $shippingInstanceID = $shippingMethodData['instance_id'];
         }
 
         return ($shipping_saved_methods[$shippingInstanceID]['status'] == 0) ? false : true;
@@ -1032,10 +1032,12 @@ class WooYellowCube
     /**
      * Send an order to YellowCube (WAB Request)
      *
+     * Use $force to force sending.
+     *
      * @release 3.4.1
      * @date    2017-05-08
      */
-    public function YellowCube_WAB($order_id)
+    public function YellowCube_WAB($order_id, $force = FALSE)
     {
         global $wpdb, $woocommerce;
 
@@ -1049,8 +1051,7 @@ class WooYellowCube
 
         // get the current order
         if ($wcOrder = wc_get_order($order_id)) {
-            // @todo Allow manual YC submission if disabled.
-            if ($this->isShippingAvailable($wcOrder)) {
+            if ($force || $this->isShippingAvailable($wcOrder)) {
                 if (!$this->alreadySentYellowCube($order_id)) {
 
                     // global informations
@@ -1096,7 +1097,7 @@ class WooYellowCube
                     $yellowcubeOrder->addValueAddedService($shippingInformations['main']);
 
                     if (!empty($shippingInformations['additional'])) {
-                        $yellowcubeOrder->addValueAddedService(new AdditionalShippingServices($shippingInformations['additional']));
+                        $yellowcubeOrder->addValueAddedService($shippingInformations['additional']);
                     }
 
                     // get order items
