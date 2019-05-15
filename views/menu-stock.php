@@ -67,7 +67,7 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
     <?php
     // get WooCommerce stock
     $product = wc_get_product($stock->product_id);
-    $product_link = $product ? admin_url( 'post.php?post=' . $product->get_name() . '&action=edit' ) : '';
+    $product_link = $product ? admin_url( 'post.php?post=' . $product->get_id() . '&action=edit' ) : '';
     $woocommerce_stock = ($product) ? $product->get_stock_quantity() : false;
     $yellowcube_stock = $wpdb->get_var('SELECT SUM(yellowcube_stock) FROM wooyellowcube_stock WHERE yellowcube_articleno="'.$stock->yellowcube_articleno.'"');
 
@@ -84,7 +84,7 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
         <td><input type="checkbox" name="products[]" value="<?php echo $stock->product_id; ?>" /> <?php echo $stock->yellowcube_articleno; ?></td>
         <td>
           <?php if(!empty($product)) : ?>
-            <a href="<?php echo esc_url( $product_link ); ?>"><?php echo wp_kses_post( $product->get_name() ); ?></a>
+            <a href="<?php echo esc_url( $product_link ); ?>"><?php echo esc_html( $product->get_name() ); ?></a>
           <?php endif; ?>
         </td>
 
@@ -101,7 +101,7 @@ $stocks = $wpdb->get_results('SELECT * FROM wooyellowcube_stock GROUP BY yellowc
                   <span style="color: #CE1A1A;"><strong><?php _e('Different stock', 'wooyellowcube'); ?></strong></span>
                 <?php endif; ?>
             <?php else: ?>
-                <span><?php _e('Product not in Shop', 'wooyellowcube'); ?></span>
+                <span><?php _e('Product not in shop', 'wooyellowcube'); ?></span>
             <?php endif; ?>
         </td>
         <td>
