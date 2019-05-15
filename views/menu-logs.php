@@ -43,22 +43,37 @@ if(count($yellowcube_activities) == 0) : ?>
     <?php foreach($yellowcube_activities as $activity): ?>
       <tr>
         <td><?php echo date('Y/m/d H:i', $activity->created_at); ?></td>
-        <td><?php echo $activity->reference; ?></td>
+        <td><?php echo $activity->reference?:''; ?></td>
         <td><?php echo $activity->type; ?></td>
         <td>
-        <?php if(strpos($activity->type, 'ART') !== false) : ?>
         <?php
-        $wc_product = wc_get_product((int)$activity->object);
-
-        if($wc_product) {
-            echo $wc_product->get_sku();
-        }else{
-            echo $activity->object;
+        if(strpos($activity->type, 'ART') === 0) {
+          $product = wc_get_product((int) $activity->object);
+          if($product) {
+            $product_link = admin_url('post.php?post=' . $product->get_id() . '&action=edit');
+        ?>
+            <a href="<?php echo esc_url($product_link); ?>"><?php echo esc_html($product->get_sku()); ?></a>
+        <?php
+          } else {
+            // Product has been deleted.
+            echo "#" . $activity->object;
+          }
+        }
+        elseif(strpos($activity->type, 'WAB') === 0) {
+          $order = wc_get_order((int) $activity->object);
+          if($order) {
+            $order_link = admin_url('post.php?post=' . $order->get_id() . '&action=edit');
+            ?>
+              <a href="<?php echo esc_url($order_link); ?>">#<?php echo esc_html($order->get_id()); ?></a>
+            <?php
+          }
+        }
+        elseif($activity->object) {
+        ?>
+          <?php echo $activity->object; ?>
+        <?php
         }
         ?>
-        <?php else: ?>
-                        #<?php echo $activity->object; ?>
-        <?php endif; ?>
                 </td>
         <td>
             <?php echo $activity->message; ?>
