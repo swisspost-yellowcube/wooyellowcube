@@ -577,13 +577,19 @@ class WooYellowCube
      */
     public function ajax()
     {
-        add_action('wp_ajax_product_send', array(&$this, 'ajax_product_send')); // Product - send
-        add_action('wp_ajax_product_update', array(&$this, 'ajax_product_update')); // Product - update
-        add_action('wp_ajax_product_remove', array(&$this, 'ajax_product_deactivate')); // Product - remove
-        add_action('wp_ajax_order_send', array(&$this, 'ajax_order_send')); // Order - send
+        // Product - send
+        add_action('wp_ajax_product_send', array(&$this, 'ajax_product_send'));
+        // Product - update
+        add_action('wp_ajax_product_update', array(&$this, 'ajax_product_update'));
+        // Product - remove
+        add_action('wp_ajax_product_remove', array(&$this, 'ajax_product_deactivate'));
+
+        // Order - send
+        add_action('wp_ajax_order_send', array(&$this, 'ajax_order_send'));
 
         // @todo stubs only, remove?
-        add_action('wp_ajax_order_again', array(&$this, 'ajax_order_again')); // Order - again
+        // Order - again
+        add_action('wp_ajax_order_again', array(&$this, 'ajax_order_again'));
     }
 
     /**
@@ -599,10 +605,16 @@ class WooYellowCube
      */
     public function ajax_product_send()
     {
-        $post_id = htmlspecialchars($_POST['post_id']); // Get post ID
-        $lotmanagement = htmlspecialchars($_POST['lotmanagement']); // Get lot management
-        $variation = isset($_POST['variation']) ? htmlspecialchars($_POST['variation']) : false; // Get the information if the product is a variation
-        $this->YellowCube_ART($post_id, 'insert', null, $lotmanagement, $variation); // Insert the product in YellowCube
+        // Get post ID
+        $post_id = htmlspecialchars($_POST['post_id']);
+        // Get lot management
+        $lotmanagement = htmlspecialchars($_POST['lotmanagement']);
+        // Get the information if the product is a variation
+        $variation = isset($_POST['variation']) ? htmlspecialchars($_POST['variation']) : false;
+
+        // Insert the product in YellowCube
+        $this->YellowCube_ART($post_id, 'insert', null, $lotmanagement, $variation);
+
         exit();
     }
 
@@ -611,10 +623,16 @@ class WooYellowCube
      */
     public function ajax_product_update()
     {
-        $post_id = htmlspecialchars($_POST['post_id']); // Get post ID
-        $lotmanagement = htmlspecialchars($_POST['lotmanagement']); // Get lot management
-        $variation = isset($_POST['variation']) ? htmlspecialchars($_POST['variation']) : false; // Get the information if the product is a variation
-        $this->YellowCube_ART($post_id, 'update', null, $lotmanagement, $variation); // Update the product in YellowCube
+        // Get post ID
+        $post_id = htmlspecialchars($_POST['post_id']);
+        // Get lot management
+        $lotmanagement = htmlspecialchars($_POST['lotmanagement']);
+        // Get the information if the product is a variation
+        $variation = isset($_POST['variation']) ? htmlspecialchars($_POST['variation']) : false;
+
+        // Update the product in YellowCube
+        $this->YellowCube_ART($post_id, 'update', null, $lotmanagement, $variation);
+
         exit();
     }
 
@@ -628,8 +646,10 @@ class WooYellowCube
         $post_id = htmlspecialchars($_POST['post_id']);
         // Get the information if the product is a variation
         $variation = isset($_POST['variation']) ? htmlspecialchars($_POST['variation']) : false;
+
         // Delete the product in YellowCube
         $this->YellowCube_ART($post_id, 'deactivate', 0, $variation);
+
         exit();
     }
 
@@ -653,8 +673,10 @@ class WooYellowCube
     {
         // Get post ID
         $post_id = htmlspecialchars($_POST['post_id']);
+
         // Insert the order in YellowCube
         $this->YellowCube_WAB($post_id, TRUE);
+
         exit();
     }
 
@@ -1321,7 +1343,9 @@ GROUP BY wp_woocommerce_order_items.order_id');
                             );
                             $this->log_create(1, 'ART-ACCEPTED', $response->getReference(), $execution->id_product, $response->getStatusText());
                         }
+                        // @todo Other error codes?
                     } catch (Exception $e) {
+
                         $wpdb->update(
                             'wooyellowcube_products',
                             array(
@@ -1343,7 +1367,11 @@ GROUP BY wp_woocommerce_order_items.order_id');
                     try {
                         $response = $this->yellowcube->getYCCustomerOrderStatus($execution->yc_reference);
 
-                        // Update the order only when we got 101 StatusCode
+                        if ($response->isPending()) {
+                          // Skip, recheck every minute.
+                          continue;
+                        }
+                        // Update the order only when we got 100 StatusCode.
                         if ($response->getStatusCode() == 100) {
 
                             // Update the record
@@ -1360,6 +1388,9 @@ GROUP BY wp_woocommerce_order_items.order_id');
                             );
 
                             $this->log_create(1, 'WAB-ACCEPTED', 0, $execution->id_order, $response->getStatusText());
+                        }
+                        else {
+                          // @todo Support error responses. We still retry.
                         }
                     } catch (Exception $e) {
                         $wpdb->update(
@@ -1540,7 +1571,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
     public function crons_hourly()
     {
         global $wpdb;
-        // Cron hourly execution
+        // Cron hourly execution.
         $cron_hourly = get_option('wooyellowcube_cron_hourly');
         $cron_limit_time = 60 * 60;
 
