@@ -149,3 +149,13 @@
 .wooyellowcube-activity-msg{
     font-size: 12px;
 }
+
+table img.yellowcube-product-status{
+    vertical-align: middle;
+    padding-bottom: 2px;
+}
+
+table img.yellowcube-order-status{
+    vertical-align: middle;
+    padding-bottom: 2px;
+}

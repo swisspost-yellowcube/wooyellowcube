@@ -536,15 +536,16 @@ class WooYellowCube
             if ($product) {
                 // Display status
                 switch ($product->yc_response) {
-                case 0: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-error.png" alt="'.__('Error', 'wooyellowcube').'" /> '.__('Invalid ART', 'wooyellowcube');
+                case 0: echo '<img class="yellowcube-product-status" src="'.plugin_dir_url(__FILE__).'assets/images/yc-error.png"  alt="'.__(' ', 'wooyellowcube').'" /> '.__('Error', 'wooyellowcube');
                     break;
-                case 1: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-pending.png" alt="'.__('Pending', 'wooyellowcube').'" /> '.__('Waiting response', 'wooyellowcube');
+                case 1: echo '<img class="yellowcube-product-status" src="'.plugin_dir_url(__FILE__).'assets/images/yc-pending.png" alt="'.__(' ', 'wooyellowcube').'" /> '.__('Submitted', 'wooyellowcube');
                     break;
-                case 2: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-success.png" alt="'.__('Success', 'wooyellowcube').'" /> '.__('Received', 'wooyellowcube');
+                case 2: echo '<img class="yellowcube-product-status" src="'.plugin_dir_url(__FILE__).'assets/images/yc-success.png" alt="'.__(' ', 'wooyellowcube').'" /> '.__('Active', 'wooyellowcube');
                     break;
                 }
             } else {
-                echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-unlink.png" alt="'.__('Unlink', 'wooyellowcube').'" /> '.__('Product sent to YellowCube', 'wooyellowcube');
+                //echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-unlink.png" alt="'.__('Unlink', 'wooyellowcube').'" /> '.__('Product sent to YellowCube', 'wooyellowcube');
+                echo '-';
             }
 
             break;
@@ -557,15 +558,16 @@ class WooYellowCube
             if ($order) {
                 // Display status
                 switch ($order->yc_response) {
-                case 0: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-error.png" alt="'.__('Error', 'wooyellowcube').'" /> '.__('Invalid order', 'wooyellowcube');
+                case 0: echo '<img class="yellowcube-order-status" src="'.plugin_dir_url(__FILE__).'assets/images/yc-error.png" alt="'.__(' ', 'wooyellowcube').'" /> '.__('Error', 'wooyellowcube');
                     break;
-                case 1: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-pending.png" alt="'.__('Pending', 'wooyellowcube').'" /> '.__('Waiting YellowCube response', 'wooyellowcube');
+                case 1: echo '<img class="yellowcube-order-status" src="'.plugin_dir_url(__FILE__).'assets/images/yc-pending.png" alt="'.__(' ', 'wooyellowcube').'" /> '.__('Submitted', 'wooyellowcube');
                     break;
-                case 2: echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-success.png" alt="'.__('Success', 'wooyellowcube').'" /> '.__('Order sent by YellowCube', 'wooyellowcube');
+                case 2: echo '<img class="yellowcube-order-status" src="'.plugin_dir_url(__FILE__).'assets/images/yc-success.png" alt="'.__(' ', 'wooyellowcube').'" /> '.__('Confirmed', 'wooyellowcube');
                     break;
                 }
             } else {
-                echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-unlink.png" alt="'.__('Unlink', 'wooyellowcube').'" /> '.__('Order not sent to YellowCube', 'wooyellowcube');
+                //echo '<img src="'.plugin_dir_url(__FILE__).'assets/images/yc-unlink.png" alt="'.__('Unlink', 'wooyellowcube').'" /> '.__('Order not sent to YellowCube', 'wooyellowcube');
+                echo '-';
             }
 
             break;
