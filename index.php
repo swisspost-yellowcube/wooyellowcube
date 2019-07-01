@@ -1300,7 +1300,35 @@ GROUP BY wp_woocommerce_order_items.order_id');
     }
 
     /**
-     * CRON management : Response
+     * Create a lock for cron.
+     */
+    public function cron_lock_get($name) {
+      // Avoid duplicate runs with a lock.
+      $upload_dir = wp_upload_dir();
+      $lockfile = $upload_dir['basedir'] . '/yellowcube.'.$name.'.lock';
+      $fp = fopen($lockfile, 'w');
+      if (!flock($fp, LOCK_EX | LOCK_NB)) {
+        // Could not get the lock.
+        return;
+      }
+      return $fp;
+    }
+
+    /**
+     * Release lock for cron.
+     */
+    public function cron_lock_release($handle) {
+      // Avoid duplicate runs with a lock.
+      flock($handle, LOCK_UN);
+      fclose($handle);
+    }
+
+    /**
+     * CRON - RESPONSES ORDER | PRODUCT - Per Minute
+     *
+     * Tasks
+     * - Update order status to accepted | refused
+     * - Update product status to accepted | refused
      */
     public function crons_responses()
     {
@@ -1309,6 +1337,11 @@ GROUP BY wp_woocommerce_order_items.order_id');
         $cron_response_limit = 60; // 60 seconds
 
         if (((time() - $cron_response) > $cron_response_limit) || (isset($_GET['cron_response']) != '')) {
+            // Avoid parallel runs.
+            if (!$lock = $this->cron_lock_get('responses')) {
+              return;
+            }
+
             // Update last execution date first, avoid re-run on error.
             update_option('wooyellowcube_cron_response', time());
 
@@ -1412,11 +1445,18 @@ GROUP BY wp_woocommerce_order_items.order_id');
                     }
                 }
             }
+
+            // Release lock.
+            $this->cron_lock_release($lock);
         }
     }
 
     /**
-     * CRON management : Daily
+     * CRON - UPDATE STOCK | LOG CLEAN - Daily
+     *
+     * Tasks
+     * - Update stock repository
+     * - Clean logs
      */
     public function crons_daily()
     {
@@ -1426,12 +1466,8 @@ GROUP BY wp_woocommerce_order_items.order_id');
 
         // Execute CRON
         if (($current_day != $cron_daily) || (isset($_GET['cron_daily']) != '')) {
-            // Avoid duplicate runs with a lock.
-            $upload_dir = wp_upload_dir();
-            $lockfile = $upload_dir['basedir'] . '/yellowcube.daily.lock';
-            $fp = fopen($lockfile, 'w');
-            if (!flock($fp, LOCK_EX | LOCK_NB)) {
-              // Could not get the lock.
+            // Avoid parallel runs.
+            if (!$lock = $this->cron_lock_get('daily')) {
               return;
             }
 
@@ -1448,9 +1484,8 @@ GROUP BY wp_woocommerce_order_items.order_id');
                 $wpdb->query("DELETE FROM wooyellowcube_logs WHERE created_at < ".(time() - $date_gap));
             }
 
-            // Release lock and close file.
-            flock($fp, LOCK_UN);
-            fclose($fp);
+            // Release lock.
+            $this->cron_lock_release($lock);
         }
     }
 
@@ -1567,7 +1602,11 @@ GROUP BY wp_woocommerce_order_items.order_id');
     }
 
     /**
-     * CRON - Hourly
+     * CRON - WAR - Hourly
+     *
+     * NEW interval 15mins, following standard intervals.
+     *
+     * The interval was originally 60mins = hourly.
      */
 
     public function crons_hourly()
@@ -1575,14 +1614,22 @@ GROUP BY wp_woocommerce_order_items.order_id');
         global $wpdb;
         // Cron hourly execution.
         $cron_hourly = get_option('wooyellowcube_cron_hourly');
-        $cron_limit_time = 60 * 60;
+        $cron_limit_time = 15 * 60;
 
         // Need to execute the cron
         if (((time() - $cron_hourly) > $cron_limit_time) || (isset($_GET['cron_hourly']) != '')) {
+            // Avoid parallel runs.
+            if (!$lock = $this->cron_lock_get('WAR')) {
+              return;
+            }
+
             // Update last execution date first, avoid re-run on error.
             update_option('wooyellowcube_cron_hourly', time());
 
             $this->retrieveWAR();
+
+            // Release lock.
+            $this->cron_lock_release($lock);
         }
     }
 
