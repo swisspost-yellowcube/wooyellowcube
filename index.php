@@ -1604,7 +1604,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
     /**
      * CRON - WAR - Hourly
      *
-     * NEW interval 15mins, following standard intervals.
+     * NEW interval 30mins, following standard intervals.
      *
      * The interval was originally 60mins = hourly.
      */
@@ -1614,7 +1614,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
         global $wpdb;
         // Cron hourly execution.
         $cron_hourly = get_option('wooyellowcube_cron_hourly');
-        $cron_limit_time = 15 * 60;
+        $cron_limit_time = 30 * 60;
 
         // Need to execute the cron
         if (((time() - $cron_hourly) > $cron_limit_time) || (isset($_GET['cron_hourly']) != '')) {
