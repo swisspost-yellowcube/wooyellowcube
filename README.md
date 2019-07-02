@@ -26,9 +26,10 @@ Please refer to the next section to integrate crons with a server cron-job syste
 $yellowcube->cron_response();
 _Get article and orders results_
 
-**Every hour (60 minutes) difference** :
+**Every hour (effectively 30 minutes) difference** :
 $yellowcube->cron_hourly();
 _Get WAR results_
+(This interval was adjusted from hourly.)
 
 **Every day difference** :
 $yellowcube->cron_daily();
@@ -36,6 +37,6 @@ _Get the inventory (BAR)_
 
 ### Cron-job system
 Endpoint to call cron-jobs :
-* http://yourwebsite.com/?cron_response=true
-* http://yourwebsite.com/?cron_hourly=true
-* http://yourwebsite.com/?cron_daily=true
+* http://example.com/?cron_response=true
+* http://example.com/?cron_hourly=true
+* http://example.com/?cron_daily=true
