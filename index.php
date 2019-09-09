@@ -1543,14 +1543,15 @@ GROUP BY wp_woocommerce_order_items.order_id');
 
         try {
             // get yellowcube inventory
-            $articles = $this->yellowcube->getInventory();
+            $inventory = $this->yellowcube->getInventoryWithMetadata();
+            $date = DateTime::createFromFormat('YmdHis', $inventory->getTimestamp());
 
             // remove the current stock information.
             $wpdb->query('DELETE FROM wooyellowcube_stock');
             $wpdb->query('DELETE FROM wooyellowcube_stock_lots');
 
             // loop on each article
-            foreach ($articles as $article) {
+            foreach ($inventory->getArticles() as $article) {
 
                 // select only YAFS products (see with YellowCube technical operators)
                 if ($article->getStorageLocation() == 'YAFS') {
@@ -1576,8 +1577,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
                                 'product_name' => $article->getArticleDescription(),
                                 //'woocommerce_stock' => $product->get_stock_quantity(),
                                 'yellowcube_stock' => (string)$article->getQuantityUOM(),
-                                // @todo Update date to stock export date.
-                                'yellowcube_date' => time(),
+                                'yellowcube_date' => $date->getTimestamp(),
                                 'yellowcube_articleno' => $article->getArticleNo(),
                                 'yellowcube_lot' => $article->getLot() ?: '',
                                 'yellowcube_bestbeforedate' => $article->getBestBeforeDate()
