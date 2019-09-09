@@ -77,15 +77,22 @@
 	  <br />
 	  <input type="text" name="logs" id="logs" value="<?php echo get_option('wooyellowcube_logs'); ?>" />
   </p>
+    <p>
+        <label for="logsDebug"><?php _e('Debug Request Log', 'wooyellowcube'); ?></label>
+        <select name="logsDebug" id="logsDebug">
+            <option value="0" <?php if(get_option('wooyellowcube_logsDebug') == 0) echo 'selected="selected"'; ?>>No</option>
+            <option value="1" <?php if(get_option('wooyellowcube_logsDebug') == 1) echo 'selected="selected"'; ?>>Yes</option>
+        </select>
+    </p>
 
 
 
 
-  <p>
-    <input type="submit" name="wooyellowcube-settings" value="<?=__('Save information', 'wooyellowcube')?>" class="button" />
-  </p>
 
 
 </div>
 </div>
+    <p>
+        <input type="submit" name="wooyellowcube-settings" value="<?=__('Save information', 'wooyellowcube')?>" class="button" />
+    </p>
 </form>

@@ -49,7 +49,10 @@ class WooYellowCube
 
     public $defaultWSDL = 'https://service-test.swisspost.ch/apache/yellowcube-test/?wsdl';
 
-    /**
+    public $lastRequest;
+
+
+  /**
      * __constructor
      */
     public function __construct()
@@ -135,7 +138,12 @@ class WooYellowCube
             $soap_config->setCertificateFilePath(__DIR__ .'/'.get_option('wooyellowcube_authentificationFile'));
           }
 
-          $this->yellowcube = new Service($soap_config);
+          $logger = NULL;
+          if (get_option('wooyellowcube_logsDebug')) {
+            include_once 'logger.php';
+            $logger = new Logger($this);
+          }
+          $this->yellowcube = new Service($soap_config, NULL, $logger);
             return true;
         } catch (Exception $e) {
             $this->log_create(0, 'INIT-ERROR', 0, 0, __('SOAP WSDL not reachable', 'wooyellowcube'));
@@ -350,7 +358,7 @@ class WooYellowCube
             $values_to_save = [
                 'setter', 'receiver', 'depositorNo', 'partnerNo', 'plant',
                 'operatingMode', 'authentification', 'authentificationFile',
-                'yellowcubeSOAPUrl', 'lotmanagement', 'logs',
+                'yellowcubeSOAPUrl', 'lotmanagement', 'logs', 'logsDebug'
             ];
 
             foreach ($values_to_save as $value_key) {
@@ -1333,7 +1341,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
     public function crons_responses()
     {
         global $wpdb;
-        $cron_response = get_option('wooyellowcube_cron_response');
+        $this->lastRequest = $cron_response = get_option('wooyellowcube_cron_response');
         $cron_response_limit = 60; // 60 seconds
 
         if (((time() - $cron_response) > $cron_response_limit) || (isset($_GET['cron_response']) != '')) {
@@ -1461,7 +1469,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
     public function crons_daily()
     {
         global $wpdb;
-        $cron_daily = get_option('wooyellowcube_cron_daily');
+        $this->lastRequest = $cron_daily = get_option('wooyellowcube_cron_daily');
         $current_day = date('Ymd');
 
         // Execute CRON
@@ -1613,7 +1621,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
     {
         global $wpdb;
         // Cron hourly execution.
-        $cron_hourly = get_option('wooyellowcube_cron_hourly');
+        $this->lastRequest = $cron_hourly = get_option('wooyellowcube_cron_hourly');
         $cron_limit_time = 30 * 60;
 
         // Need to execute the cron
