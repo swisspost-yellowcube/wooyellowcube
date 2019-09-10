@@ -1681,24 +1681,6 @@ GROUP BY wp_woocommerce_order_items.order_id');
         // Return correct informations
         return $out_temp;
     }
-
-    // @todo unused.
-    public static function getEmailSubject()
-    {
-        return (get_option('wooyellowcube_email_subject') != '') ? get_option('wooyellowcube_email_subject') : self::$email_subject;
-    }
-
-    // @todo unused.
-    public static function getEmailReply()
-    {
-        return (get_option('wooyellowcube_email_reply') != '') ? get_option('wooyellowcube_email_reply') : self::$email_reply;
-    }
-
-    // @todo unused.
-    public static function getEmailContent()
-    {
-        return (get_option('wooyellowcube_email_content') != '') ? get_option('wooyellowcube_email_content') : self::$email_content;
-    }
 }
 
 
