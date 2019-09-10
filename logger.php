@@ -1,6 +1,8 @@
 <?php
 
 use Psr\Log\LoggerInterface;
+use YellowCube\ART\Article;
+use YellowCube\WAB\Order;
 
 /**
  * Class Logger
@@ -17,7 +19,7 @@ class Logger implements LoggerInterface {
     $this->yellowcube = $yellowcube;
   }
 
-  public function log($level, $message, array $context = []) {
+  public function log_create($level, $reference, $object, $message, array $context = []) {
     $service = 'SERVICE: ' . $_SERVER['REMOTE_ADDR'];
     // @todo log precise time.
     $t = microtime(true);
@@ -27,7 +29,16 @@ class Logger implements LoggerInterface {
     $datestr = $d->format("Y-m-d H:i:s.u");
     $lastrun = $this->yellowcube->lastRequest;
 
-    $this->yellowcube->log_create('', $service, NULL, NULL, $datestr . ': ' . $lastrun . ' ' . $message);
+    $message = $datestr . ': ' . $lastrun . ' ' . $message;
+    $message .= ' ' . var_export($context, TRUE);
+
+    $this->yellowcube->log_create('', $service, $reference, $object, $message);
+  }
+
+  public function log($level, $message, array $context = []) {
+    $reference = NULL;
+    $object = NULL;
+    $this->log_create($level, $reference, $object, $message, $context);
   }
 
   public function notice($message, array $context = array()) {
@@ -51,7 +62,18 @@ class Logger implements LoggerInterface {
   }
 
   public function info($message, array $context = array()) {
-    $this->log('info', $message, $context);
+    $reference = NULL;
+    $object = NULL;
+    if (!empty($context['reference'])) {
+      $reference = $context['reference'];
+    }
+    if (!empty($context['article']) && $context['article'] instanceof Article) {
+      // @todo missing getters on WAB\Article.
+    }
+    if (!empty($context['order']) && $context['order'] instanceof Order) {
+      $object = $context['order']->getOrderHeader()->getCustomerOrderNo();
+    }
+    $this->log_create('info', $reference, $object, $message, $context);
   }
 
   public function debug($message, array $context = array()) {
