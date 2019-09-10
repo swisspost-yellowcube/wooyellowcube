@@ -1341,17 +1341,20 @@ GROUP BY wp_woocommerce_order_items.order_id');
     public function crons_responses()
     {
         global $wpdb;
-        $this->lastRequest = $cron_response = get_option('wooyellowcube_cron_response');
         $cron_response_limit = 60; // 60 seconds
+        $get_key = 'cron_response';
+        $option_key = 'wooyellowcube_cron_response';
+        $time = time();
+        $this->lastRequest = get_option($option_key);
 
-        if (((time() - $cron_response) > $cron_response_limit) || (isset($_GET['cron_response']) != '')) {
+        if ((($time - $this->lastRequest) > $cron_response_limit) || (isset($_GET[$get_key]) != '')) {
             // Avoid parallel runs.
-            if (!$lock = $this->cron_lock_get('responses')) {
+            if (!$lock = $this->cron_lock_get($option_key)) {
               return;
             }
 
             // Update last execution date first, avoid re-run on error.
-            update_option('wooyellowcube_cron_response', time());
+            update_option('wooyellowcube_cron_response', $time);
 
             // Get PENDING results from previous requests on products.
             $products_execution = $wpdb->get_results('SELECT * FROM wooyellowcube_products WHERE yc_response = 1');
@@ -1469,18 +1472,22 @@ GROUP BY wp_woocommerce_order_items.order_id');
     public function crons_daily()
     {
         global $wpdb;
-        $this->lastRequest = $cron_daily = get_option('wooyellowcube_cron_daily');
+        $cron_response_limit = 60*60*24; // 24 hours
+        $get_key = 'cron_daily';
+        $option_key = 'wooyellowcube_cron_daily';
+        $time = time();
         $current_day = date('Ymd');
+        $this->lastRequest = get_option($option_key);
 
         // Execute CRON
-        if (($current_day != $cron_daily) || (isset($_GET['cron_daily']) != '')) {
+        if (($current_day != $this->lastRequest) || (isset($_GET[$get_key]) != '')) {
             // Avoid parallel runs.
-            if (!$lock = $this->cron_lock_get('daily')) {
+            if (!$lock = $this->cron_lock_get($option_key)) {
               return;
             }
 
             // Update last execution date first, avoid re-run on error.
-            update_option('wooyellowcube_cron_daily', date('Ymd'));
+            update_option($option_key, date('Ymd'));
 
 
             $this->update_stock();
@@ -1621,18 +1628,21 @@ GROUP BY wp_woocommerce_order_items.order_id');
     {
         global $wpdb;
         // Cron hourly execution.
-        $this->lastRequest = $cron_hourly = get_option('wooyellowcube_cron_hourly');
         $cron_limit_time = 30 * 60;
+        $get_key = 'cron_hourly';
+        $option_key = 'wooyellowcube_cron_hourly';
+        $time = time();
+        $this->lastRequest = get_option($option_key);
 
-        // Need to execute the cron
-        if (((time() - $cron_hourly) > $cron_limit_time) || (isset($_GET['cron_hourly']) != '')) {
+      // Need to execute the cron
+        if ((($time - $this->lastRequest) > $cron_limit_time) || (isset($_GET[$get_key]) != '')) {
             // Avoid parallel runs.
-            if (!$lock = $this->cron_lock_get('WAR')) {
+            if (!$lock = $this->cron_lock_get($option_key)) {
               return;
             }
 
             // Update last execution date first, avoid re-run on error.
-            update_option('wooyellowcube_cron_hourly', time());
+            update_option($option_key, $time);
 
             $this->retrieveWAR();
 
@@ -1654,6 +1664,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
         $wpdb->insert('wooyellowcube_logs', array('id' => '', 'created_at' => time(), 'type' => $type, 'response' => $response, 'reference' => $reference, 'object' => $object, 'message' => $message));
     }
 
+    // @todo unused.
     public function woocommerce_reverse_meta($array)
     {
         if (!is_array($array)) {
@@ -1671,16 +1682,19 @@ GROUP BY wp_woocommerce_order_items.order_id');
         return $out_temp;
     }
 
+    // @todo unused.
     public static function getEmailSubject()
     {
         return (get_option('wooyellowcube_email_subject') != '') ? get_option('wooyellowcube_email_subject') : self::$email_subject;
     }
 
+    // @todo unused.
     public static function getEmailReply()
     {
         return (get_option('wooyellowcube_email_reply') != '') ? get_option('wooyellowcube_email_reply') : self::$email_reply;
     }
 
+    // @todo unused.
     public static function getEmailContent()
     {
         return (get_option('wooyellowcube_email_content') != '') ? get_option('wooyellowcube_email_content') : self::$email_content;
@@ -1692,6 +1706,7 @@ if (!function_exists('wp_get_current_user')) {
     include ABSPATH . "wp-includes/pluggable.php";
 }
 
+// @todo remove this backward compatibility code.
 if (!function_exists('is_user_logged_in')) :
     /**
      * Checks if the current visitor is a logged in user.
