@@ -1663,24 +1663,6 @@ GROUP BY wp_woocommerce_order_items.order_id');
         // insert the row in database (log database)
         $wpdb->insert('wooyellowcube_logs', array('id' => '', 'created_at' => time(), 'type' => $type, 'response' => $response, 'reference' => $reference, 'object' => $object, 'message' => $message));
     }
-
-    // @todo unused.
-    public function woocommerce_reverse_meta($array)
-    {
-        if (!is_array($array)) {
-            return false;
-        }
-
-        // Check if param is an array
-        $out_temp = array(); // Out temporary
-
-        foreach ($array as $id => $object) {
-            $out_temp[$object->key] = $object->value;
-        }
-
-        // Return correct informations
-        return $out_temp;
-    }
 }
 
 
