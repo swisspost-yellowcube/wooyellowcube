@@ -64,7 +64,7 @@ class WooYellowCube
 
         if ($this->areSettingsReady()) {
             // Skip cron on ajax requests.
-            if (strpos($_SERVER['SCRIPT_NAME'], 'admin-ajax.php')!==FALSE) {
+            if (defined( 'DOING_AJAX' ) && DOING_AJAX) {
                 return;
             }
 
