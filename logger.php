@@ -21,7 +21,7 @@ class Logger implements LoggerInterface {
 
   public function log_create($level, $reference, $object, $message, array $context = []) {
     $service = 'SERVICE: ' . $_SERVER['REMOTE_ADDR'];
-    // @todo log precise time.
+    // Log precise time.
     $t = microtime(true);
     $micro = sprintf("%06d", ($t - floor($t)) * 1000000);
     $d = new DateTime(date('Y-m-d H:i:s.' . $micro, $t));

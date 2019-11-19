@@ -362,9 +362,9 @@ class WooYellowCube
             $wpdb->query('DELETE FROM wooyellowcube_stock_lots');
 
             // Reset execution times so crons are triggered again.
-            update_option('wooyellowcube_cron_response', 0);
-            update_option('wooyellowcube_cron_daily', 0);
-            update_option('wooyellowcube_cron_hourly', 0);
+            update_option('wooyellowcube_cron_response', 0, false);
+            update_option('wooyellowcube_cron_daily', 0, false);
+            update_option('wooyellowcube_cron_hourly', 0, false);
         }
 
         include_once 'views/menu-settings.php';
@@ -1369,7 +1369,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
             }
 
             // Update last execution date first, avoid re-run on error.
-            update_option('wooyellowcube_cron_response', $time);
+            update_option($option_key, $time, false);
 
             // Get PENDING results from previous requests on products.
             $products_execution = $wpdb->get_results('SELECT * FROM wooyellowcube_products WHERE yc_response = 1');
@@ -1502,7 +1502,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
             }
 
             // Update last execution date first, avoid re-run on error.
-            update_option($option_key, date('Ymd'));
+            update_option($option_key, date('Ymd'), false);
 
 
             $this->update_stock();
@@ -1657,7 +1657,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
             }
 
             // Update last execution date first, avoid re-run on error.
-            update_option($option_key, $time);
+            update_option($option_key, $time, false);
 
             $this->retrieveWAR();
 
