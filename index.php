@@ -1316,7 +1316,6 @@ GROUP BY wp_woocommerce_order_items.order_id');
      * Create a lock for cron.
      */
     public function cron_lock_get($name) {
-      // Avoid duplicate runs with a lock.
       $upload_dir = wp_upload_dir();
       $lockfile = $upload_dir['basedir'] . '/yellowcube.'.$name.'.lock';
       $fp = fopen($lockfile, 'w');
@@ -1331,7 +1330,6 @@ GROUP BY wp_woocommerce_order_items.order_id');
      * Release lock for cron.
      */
     public function cron_lock_release($handle) {
-      // Avoid duplicate runs with a lock.
       flock($handle, LOCK_UN);
       fclose($handle);
     }
@@ -1671,10 +1669,6 @@ GROUP BY wp_woocommerce_order_items.order_id');
 }
 
 
-if (!function_exists('wp_get_current_user')) {
-    include ABSPATH . "wp-includes/pluggable.php";
-}
-
 /**
  * Plugin initialization from init action
  *
@@ -1683,6 +1677,7 @@ if (!function_exists('wp_get_current_user')) {
 function wooyellowcube_init()
 {
     // instanciate WooYellowCube class
+    // @todo maybe set global instance here?
     $wooyellowcube = new WooYellowCube();
 }
 
