@@ -1502,7 +1502,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
             }
 
             // Update last execution date first, avoid re-run on error.
-            update_option($option_key, date('Ymd'), false);
+            update_option($option_key, $current_day, false);
 
 
             $this->update_stock();
