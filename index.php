@@ -61,26 +61,7 @@ class WooYellowCube
 
         $this->actions();
         $this->columns();
-
-        if ($this->areSettingsReady()) {
-            // Skip cron on ajax requests.
-            if (defined( 'DOING_AJAX' ) && DOING_AJAX) {
-                return;
-            }
-            // Skip cron if disabled. Requires separate call.
-            if (defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON) {
-                return;
-            }
-
-            try {
-                $this->crons_responses();
-                $this->crons_daily();
-                $this->crons_hourly();
-            } catch (Exception $e) {
-                // Silently fail.
-            }
-        }
-
+        $this->crons();
         $this->languages();
     }
 
@@ -1336,6 +1317,33 @@ GROUP BY wp_woocommerce_order_items.order_id');
     public function cron_lock_release($handle) {
       flock($handle, LOCK_UN);
       fclose($handle);
+    }
+
+    /**
+     * Run all crons based on schedule.
+     *
+     * The recommended setup is a real system cron and set DISABLE_WP_CRON.
+     */
+    public function crons() {
+      if (!$this->areSettingsReady()) {
+        return;
+      }
+      // Skip cron on ajax requests to avoid parallel hits.
+      if (defined( 'DOING_AJAX' ) && DOING_AJAX) {
+        return;
+      }
+      // Skip cron if disabled. Requires recommended separate setup.
+      if (defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON) {
+        return;
+      }
+
+      try {
+        $this->crons_responses();
+        $this->crons_daily();
+        $this->crons_hourly();
+      } catch (Exception $e) {
+        // Silently fail.
+      }
     }
 
     /**
