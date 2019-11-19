@@ -5,7 +5,7 @@
  * Description: WooCommerce synchronization with YellowCube
  * Version: 2.5.5
  * WC requires at least: 3.4.7
- * WC tested up to: 3.7.0
+ * WC tested up to: 3.8.0
  *
  * for any support please contact yellowcube.ch
  */
