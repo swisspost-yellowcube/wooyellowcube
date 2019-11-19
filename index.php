@@ -67,6 +67,10 @@ class WooYellowCube
             if (defined( 'DOING_AJAX' ) && DOING_AJAX) {
                 return;
             }
+            // Skip cron if disabled. Requires separate call.
+            if (defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON) {
+                return;
+            }
 
             try {
                 $this->crons_responses();
