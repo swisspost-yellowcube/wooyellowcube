@@ -63,6 +63,11 @@ class WooYellowCube
         $this->columns();
 
         if ($this->areSettingsReady()) {
+            // Skip cron on ajax requests.
+            if (strpos($_SERVER['SCRIPT_NAME'], 'admin-ajax.php')!==FALSE) {
+                return;
+            }
+
             try {
                 $this->crons_responses();
                 $this->crons_daily();
