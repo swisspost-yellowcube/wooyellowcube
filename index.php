@@ -767,6 +767,7 @@ class WooYellowCube
         $product_ean = '';
 
         if (strpos($attributes, '=') !== false) {
+            // @todo Missing use case reference.
             $attributes_first_level = explode(',', $attributes);
             $temp_attributes = array();
 
@@ -1478,7 +1479,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
                         );
 
                         wc_get_order($execution->id_order)->update_status('failed', $e->getMessage());
-                        $this->log_create(0, 'WAB-REFUSED', 0, $execution->id_order, $response->getStatusText());
+                        $this->log_create(0, 'WAB-REFUSED', 0, $execution->id_order, $e->getMessage());
                     }
                 }
             }
