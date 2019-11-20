@@ -51,6 +51,8 @@ class WooYellowCube
 
     public $lastRequest;
 
+    public $logDebug;
+
 
   /**
      * __constructor
@@ -59,10 +61,13 @@ class WooYellowCube
     {
         include_once 'vendor/autoload.php';
 
+        $this->logDebug = get_option('wooyellowcube_logsDebug');
+
         $this->actions();
         $this->columns();
         $this->crons();
         $this->languages();
+
     }
 
     /**
@@ -129,7 +134,7 @@ class WooYellowCube
           }
 
           $logger = NULL;
-          if (get_option('wooyellowcube_logsDebug')) {
+          if ($this->logDebug) {
             include_once 'logger.php';
             $logger = new Logger($this);
           }
@@ -1370,6 +1375,10 @@ GROUP BY wp_woocommerce_order_items.order_id');
               return;
             }
 
+            if ($this->logDebug) {
+              $this->log_create(0, 'CRON-RESPONSES', 0, 0, $this->lastRequest . ' ' . $time . ' ' . ($time - $this->lastRequest));
+            }
+
             // Update last execution date first, avoid re-run on error.
             update_option($option_key, $time, false);
 
@@ -1502,6 +1511,10 @@ GROUP BY wp_woocommerce_order_items.order_id');
             // Avoid parallel runs.
             if (!$lock = $this->cron_lock_get($option_key)) {
               return;
+            }
+
+            if ($this->logDebug) {
+              $this->log_create(0, 'CRON-DAILY', 0, 0, $this->lastRequest . ' ' . $current_day);
             }
 
             // Update last execution date first, avoid re-run on error.
@@ -1658,6 +1671,10 @@ GROUP BY wp_woocommerce_order_items.order_id');
             // Avoid parallel runs.
             if (!$lock = $this->cron_lock_get($option_key)) {
               return;
+            }
+
+            if ($this->logDebug) {
+              $this->log_create(0, 'CRON-HOURLY', 0, 0, $this->lastRequest . ' ' . $time . ' ' . ($time - $this->lastRequest));
             }
 
             // Update last execution date first, avoid re-run on error.
