@@ -29,7 +29,7 @@ $yellowcube_product = $wpdb->get_row('SELECT * FROM wooyellowcube_products WHERE
         <?php else: ?>
         <div>
             <h3><?php _e('This product has not been sent to YellowCube', 'wooyellowcube'); ?></h3>
-            <p><?php _e('<strong><u>Important:</u> Save product changes before end it to YellowCube</strong>', 'wooyellowcube'); ?></p>
+            <p><?php _e('<strong><u>Important:</u> Save product changes before sending to YellowCube</strong>', 'wooyellowcube'); ?></p>
             <hr />
             <h3><?php _e('Lot management', 'wooyellowcube'); ?></h3>
             <p><label for="lotmanagement"><strong><?php _e('Do you want to enable lot management for this product ?'); ?></strong></label></p>
