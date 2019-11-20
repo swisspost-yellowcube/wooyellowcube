@@ -1333,14 +1333,15 @@ GROUP BY wp_woocommerce_order_items.order_id');
         return;
       }
       // Skip cron if disabled. Requires recommended separate setup.
+      $fakecron = true;
       if (defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON) {
-        return;
+        $fakecron = false;
       }
 
       try {
-        $this->crons_responses();
-        $this->crons_daily();
-        $this->crons_hourly();
+        $this->crons_responses($fakecron);
+        $this->crons_daily($fakecron);
+        $this->crons_hourly($fakecron);
       } catch (Exception $e) {
         // Silently fail.
       }
@@ -1353,7 +1354,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
      * - Update order status to accepted | refused
      * - Update product status to accepted | refused
      */
-    public function crons_responses()
+    public function crons_responses($fakecron)
     {
         global $wpdb;
         $cron_response_limit = 60; // 60 seconds
@@ -1362,7 +1363,8 @@ GROUP BY wp_woocommerce_order_items.order_id');
         $time = time();
         $this->lastRequest = get_option($option_key);
 
-        if ((($time - $this->lastRequest) > $cron_response_limit) || (isset($_GET[$get_key]) != '')) {
+        if (($fakecron && (($time - $this->lastRequest) > $cron_response_limit))
+          || (isset($_GET[$get_key]) != '')) {
             // Avoid parallel runs.
             if (!$lock = $this->cron_lock_get($option_key)) {
               return;
@@ -1484,7 +1486,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
      * - Update stock repository
      * - Clean logs
      */
-    public function crons_daily()
+    public function crons_daily($fakecron)
     {
         global $wpdb;
         $cron_response_limit = 60*60*24; // 24 hours
@@ -1495,7 +1497,8 @@ GROUP BY wp_woocommerce_order_items.order_id');
         $this->lastRequest = get_option($option_key);
 
         // Execute CRON
-        if (($current_day != $this->lastRequest) || (isset($_GET[$get_key]) != '')) {
+        if (($fakecron && ($current_day != $this->lastRequest))
+          || (isset($_GET[$get_key]) != '')) {
             // Avoid parallel runs.
             if (!$lock = $this->cron_lock_get($option_key)) {
               return;
@@ -1639,7 +1642,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
      * The interval was originally 60mins = hourly.
      */
 
-    public function crons_hourly()
+    public function crons_hourly($fakecron)
     {
         global $wpdb;
         // Cron hourly execution.
@@ -1650,7 +1653,8 @@ GROUP BY wp_woocommerce_order_items.order_id');
         $this->lastRequest = get_option($option_key);
 
       // Need to execute the cron
-        if ((($time - $this->lastRequest) > $cron_limit_time) || (isset($_GET[$get_key]) != '')) {
+        if (($fakecron && (($time - $this->lastRequest) > $cron_limit_time))
+          || (isset($_GET[$get_key]) != '')) {
             // Avoid parallel runs.
             if (!$lock = $this->cron_lock_get($option_key)) {
               return;
