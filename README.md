@@ -14,29 +14,8 @@ CAUTION:
 
 ## Documentation
 
-[Official documentation](https://swisspost-yellowcube.github.io/wooyellowcube-docs/). Documentation is publicly maintained and improved. We encourage you [to submit changes](https://github.com/swisspost-yellowcube/wooyellowcube-docs/pull/new/master) or [report issues](https://github.com/swisspost-yellowcube/wooyellowcube-docs/issues/new) if you notice and errors or inconsistencies.
+Consult the [official plugin documentation](https://swisspost-yellowcube.github.io/wooyellowcube-docs/).
 
-## Crons
-### WordPress based
-There is 3 crons that are executed by used timestamp difference. Theses crons need to got a frontend or backend visit to be triggered.
+It is publicly maintained and improved. We encourage you [to submit changes](https://github.com/swisspost-yellowcube/wooyellowcube-docs/pull/new/master) or [report issues](https://github.com/swisspost-yellowcube/wooyellowcube-docs/issues/new) if you notice and errors or inconsistencies.
 
-Please refer to the next section to integrate crons with a server cron-job system.
-
-**Every 60 seconds difference** :
-$yellowcube->cron_response();
-_Get article and orders results_
-
-**Every hour (effectively 30 minutes) difference** :
-$yellowcube->cron_hourly();
-_Get WAR results_
-(This interval was adjusted from hourly.)
-
-**Every day difference** :
-$yellowcube->cron_daily();
-_Get the inventory (BAR)_
-
-### Cron-job system
-Endpoint to call cron-jobs :
-* http://example.com/?cron_response=true
-* http://example.com/?cron_hourly=true
-* http://example.com/?cron_daily=true
+[Setting up the plugin including cron](https://swisspost-yellowcube.github.io/wooyellowcube-docs/installation.html) is now covered in the official documentation as well.
