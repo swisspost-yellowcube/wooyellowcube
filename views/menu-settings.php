@@ -68,7 +68,7 @@
 
   <p>
     <label for="authentificationFile"><?php _e('Authentification file', 'wooyellowcube'); ?></label>
-    <input type="text" name="authentificationFile" id="authentificationFile" value="<?php echo get_option('wooyellowcube_authentificationFile'); ?>" <?php if(get_option('wooyellowcube_authentification') == 0) echo 'disabled="disabled"'; ?> size="50" />
+    <input type="text" name="authentificationFile" id="authentificationFile" value="<?php echo get_option('wooyellowcube_authentificationFile'); ?>" <?php if(get_option('wooyellowcube_authentification') == 0) echo 'disabled="disabled"'; ?> size="35" />
   </p>
 
   <h2><?php _e('Logs', 'wooyellowcube');?></h2>
