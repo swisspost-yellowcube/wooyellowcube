@@ -181,6 +181,12 @@ class WooYellowCube
 
         if (count($orders) > 0) {
             $replies = $this->yellowcube->getYCCustomerOrderReply();
+            // @todo Use the effective shipping time instead of the fetch time.
+            // @todo This can cause temporary off counts after a stuck cron.
+            // @see getInventoryWithMetadata and ControlReference
+            // $date = $reply->getTimestamp();
+            $date = new DateTime('now');
+            // @todo check time zone.
 
             // Process each reply.
             foreach ($replies as $reply) {
@@ -202,6 +208,7 @@ class WooYellowCube
                     array(
                         'status' => 2,
                         'yc_shipping' => $track,
+                        'shipped_at' => $date->getTimestamp(),
                     ),
                     array(
                         'id_order' => $order_id,
@@ -1022,7 +1029,7 @@ class WooYellowCube
      * @release 3.4.1
      * @date    2017-05-08
      *
-     * @todo Unused, remove?
+     * @todo Unused, broken, remove?
      */
     public function alreadySuccessYellowCube($orderID)
     {
@@ -1247,11 +1254,16 @@ class WooYellowCube
    *
    * Completed and Cancelled orders are excluded.
    * Only count orders that are stock reduced.
+   *
+   * Assert: product_id is in stock.
    */
   public static function get_product_order_pending_sum($product_id)
   {
     global $wpdb;
-    $orders = $wpdb->get_results('SELECT wp_woocommerce_order_items.order_id, SUM(order_item_sum.meta_value) count FROM wp_woocommerce_order_items 
+    $inventory_timestamp = $wpdb->get_var('SELECT yellowcube_date FROM wooyellowcube_stock WHERE product_id="' . $product_id . '"');
+    $lastsync = 0;
+
+    $order_items = $wpdb->get_results('SELECT wp_woocommerce_order_items.order_id, SUM(order_item_qty.meta_value) count FROM wp_woocommerce_order_items
 INNER JOIN wp_posts
   ON wp_posts.ID = wp_woocommerce_order_items.order_id
   AND wp_posts.post_status != "wc-cancelled"
@@ -1259,17 +1271,20 @@ INNER JOIN wp_woocommerce_order_itemmeta AS order_item_prod
   ON order_item_prod.order_item_id = wp_woocommerce_order_items.order_item_id
   AND order_item_prod.meta_key = "_product_id"
   AND order_item_prod.meta_value = "'.$product_id.'"
-INNER JOIN wp_woocommerce_order_itemmeta AS order_item_sum
-  ON order_item_sum.order_item_id = wp_woocommerce_order_items.order_item_id
-  AND order_item_sum.meta_key = "_qty"
+INNER JOIN wp_woocommerce_order_itemmeta AS order_item_qty
+  ON order_item_qty.order_item_id = wp_woocommerce_order_items.order_item_id
+  AND order_item_qty.meta_key = "_qty"
 LEFT JOIN wooyellowcube_orders
   ON wooyellowcube_orders.id_order = wp_woocommerce_order_items.order_id
-  AND wooyellowcube_orders.status != 2
+  AND (
+    wooyellowcube_orders.status != 2
+    OR (wooyellowcube_orders.status = 2 AND wooyellowcube_orders.shipped_at>'.$inventory_timestamp.' )
+  )
 WHERE wp_woocommerce_order_items.order_item_type="line_item"
 GROUP BY wp_woocommerce_order_items.order_id');
 
   $pending = 0;
-  foreach ($orders as $row) {
+  foreach ($order_items as $row) {
     $order = wc_get_order( $row->order_id );
 
     if ( $order ) {
@@ -1453,7 +1468,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
                                 array(
                                     // Status SUCCESS.
                                     'yc_response' => 2,
-                                    'yc_status_text' => $response->getStatusText()
+                                    'yc_status_text' => $response->getStatusText(),
                                 ),
                                 array(
                                     'id_order' => $execution->id_order
@@ -1566,6 +1581,8 @@ GROUP BY wp_woocommerce_order_items.order_id');
     /**
      * Update the stock inventory from YellowCube
      *
+     * @todo We should always check OrderReplies before.
+     *
      * @release 3.4.1
      * @date    2017-05-08
      */
@@ -1583,6 +1600,7 @@ GROUP BY wp_woocommerce_order_items.order_id');
         try {
             // get yellowcube inventory
             $inventory = $this->yellowcube->getInventoryWithMetadata();
+            // @todo check time zone.
             $date = DateTime::createFromFormat('YmdHis', $inventory->getTimestamp());
 
             // remove the current stock information.
@@ -1716,6 +1734,46 @@ function wooyellowcube_init()
 }
 
 /**
+ * Check for update needs
+ *
+ * @todo Make sure this is not executed when installing.
+ * @todo Maybe smaller delta with direct ALTER?
+ */
+function wooyellowcube_update()
+{
+  global $wpdb;
+  $current_version = get_option('wooyellowcube_update', 1);
+
+  if ($current_version < 2) {
+    include_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $wpdb->insert('wooyellowcube_logs', array(
+      'created_at' => time(), 'type' => 'UPDATE',
+      'message' => '1 Schema wooyellowcube_orders add column shipped_at'));
+
+    dbDelta(
+      "CREATE TABLE `wooyellowcube_orders` (
+        `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        `id_order` int(11) NOT NULL UNIQUE,
+        `created_at` int(11) NOT NULL,
+        `shipped_at` int(11) NOT NULL,
+        `status` tinyint(4) NOT NULL,
+        `pdf_file` varchar(250) NOT NULL,
+        `yc_response` int(11) NOT NULL,
+        `yc_status_code` int(11) NOT NULL,
+        `yc_status_text` mediumtext NOT NULL,
+        `yc_reference` int(11) NOT NULL,
+        `yc_shipping` varchar(250) NOT NULL
+    ) ENGINE=InnoDB $charset_collate;"
+    );
+
+    // Mark schema update as completed.
+    update_option('wooyellowcube_update', 2);
+  }
+}
+
+/**
  * Install callback for the WooYellowcube plugin.
  *
  * Creates necessary database tables.
@@ -1745,6 +1803,7 @@ function wooyellowcube_install()
         `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
         `id_order` int(11) NOT NULL UNIQUE,
         `created_at` int(11) NOT NULL,
+        `shipped_at` int(11) NOT NULL,
         `status` tinyint(4) NOT NULL,
         `pdf_file` varchar(250) NOT NULL,
         `yc_response` int(11) NOT NULL,
@@ -1771,6 +1830,7 @@ function wooyellowcube_install()
         `id_product` int(11) NOT NULL UNIQUE,
         `id_variation` int(11) NOT NULL,
         `created_at` int(11) NOT NULL,
+        // @todo unused.
         `status` tinyint(4) NOT NULL,
         `lotmanagement` tinyint(1) NOT NULL,
         `yc_response` int(11) NOT NULL,
@@ -1804,7 +1864,11 @@ function wooyellowcube_install()
     ) ENGINE=InnoDB AUTO_INCREMENT=33 $charset_collate"
     );
 
+    // Skip update 2.
+    update_option('wooyellowcube_update', 2);
+
 }
 
 add_action('init', 'wooyellowcube_init');
 register_activation_hook(__FILE__, 'wooyellowcube_install');
+add_action('admin_init', 'wooyellowcube_update');
