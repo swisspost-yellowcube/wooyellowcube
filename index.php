@@ -148,6 +148,8 @@ class WooYellowCube
 
     /**
      * Retrieve the WAR message
+     *
+     * Note that a test order without WAR retries to fetch hourly for 10 days.
      */
     public function retrieveWAR()
     {
@@ -1267,6 +1269,18 @@ class WooYellowCube
    * Completed and Cancelled orders are excluded.
    * Only count orders that are stock reduced.
    *
+   * We can not skip completed orders as they could be pending in Inventory.
+   *
+   * Status notes
+   * - wc-pending counters are not yet reduced
+   * - wc-cancelled is final, counters are released
+   * - wc-completed is final, maybe delta with delayed YC BAR
+   * - wc-refunded is final, counters released
+   * - wc-failed likely is temporary and needs action
+   * Other states are checked and are likely transitional.
+   *
+   * @todo maybe check partial refund counters
+   *
    * Assert: product_id is in stock.
    */
   public static function get_product_order_pending_sum($product_id)
@@ -1275,10 +1289,12 @@ class WooYellowCube
     $inventory_timestamp = $wpdb->get_var('SELECT yellowcube_date FROM wooyellowcube_stock WHERE product_id="' . $product_id . '"');
     $lastsync = 0;
 
+
+    // Check pending count on all non-final orders.
     $order_items = $wpdb->get_results('SELECT wp_woocommerce_order_items.order_id, SUM(order_item_qty.meta_value) count FROM wp_woocommerce_order_items
 INNER JOIN wp_posts
   ON wp_posts.ID = wp_woocommerce_order_items.order_id
-  AND wp_posts.post_status != "wc-cancelled"
+  AND wp_posts.post_status NOT IN ("wc-pending", "wc-cancelled", "wc-completed")
 INNER JOIN wp_woocommerce_order_itemmeta AS order_item_prod
   ON order_item_prod.order_item_id = wp_woocommerce_order_items.order_item_id
   AND order_item_prod.meta_key = "_product_id"
@@ -1288,10 +1304,7 @@ INNER JOIN wp_woocommerce_order_itemmeta AS order_item_qty
   AND order_item_qty.meta_key = "_qty"
 LEFT JOIN wooyellowcube_orders
   ON wooyellowcube_orders.id_order = wp_woocommerce_order_items.order_id
-  AND (
-    wooyellowcube_orders.status != 2
-    OR (wooyellowcube_orders.status = 2 AND wooyellowcube_orders.shipped_at>'.$inventory_timestamp.' )
-  )
+  AND wooyellowcube_orders.status != 2
 WHERE wp_woocommerce_order_items.order_item_type="line_item"
 GROUP BY wp_woocommerce_order_items.order_id');
 
@@ -1309,7 +1322,32 @@ GROUP BY wp_woocommerce_order_items.order_id');
     $pending += $row->count;
   }
 
-  return $pending;
+    // YC delta is off due to shipping after BAR reception.
+    // These orders are marked as completed in YC.
+    // @todo Group in SQL and avoid loop.
+    $yc_items = $wpdb->get_results('SELECT wp_woocommerce_order_items.order_id, SUM(order_item_qty.meta_value) count FROM wp_woocommerce_order_items
+INNER JOIN wp_posts
+  ON wp_posts.ID = wp_woocommerce_order_items.order_id
+INNER JOIN wp_woocommerce_order_itemmeta AS order_item_prod
+  ON order_item_prod.order_item_id = wp_woocommerce_order_items.order_item_id
+  AND order_item_prod.meta_key = "_product_id"
+  AND order_item_prod.meta_value = "'.$product_id.'"
+INNER JOIN wp_woocommerce_order_itemmeta AS order_item_qty
+  ON order_item_qty.order_item_id = wp_woocommerce_order_items.order_item_id
+  AND order_item_qty.meta_key = "_qty"
+INNER JOIN wooyellowcube_orders
+  ON wooyellowcube_orders.id_order = wp_woocommerce_order_items.order_id
+  AND wooyellowcube_orders.status = 2
+  AND wooyellowcube_orders.shipped_at>'.$inventory_timestamp.'
+WHERE wp_woocommerce_order_items.order_item_type="line_item"
+GROUP BY wp_woocommerce_order_items.order_id');
+
+    foreach ($order_items as $row) {
+      $pending += $row->count;
+    }
+
+
+    return $pending;
   }
 
 
