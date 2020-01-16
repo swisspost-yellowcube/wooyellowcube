@@ -201,6 +201,13 @@ class WooYellowCube
 
                 // @todo Check reply status code.
 
+                // Collect serial numbers for attachment.
+                $serials = [];
+                $list = $reply->getCustomerOrderList();
+                foreach ($list as $item) {
+                  $serials[] = $item->getArticleNo() . ': ' . $item->getSerialNumbers();
+                }
+
                 $track = $header->getPostalShipmentNo();
 
                 $wpdb->update(
@@ -217,6 +224,11 @@ class WooYellowCube
 
                 $this->log_create(1, 'WAR-SHIPMENT DELIVERED', 0, $order_id, 'Track & Trace received for order '.$order_id.' : '.$track);
                 $order_object->update_status('completed', __('Your order has been shipped', 'wooyellowcube'), false);
+
+                if (!empty($serials)) {
+                  // @todo Move serials into line items.
+                  $this->log_create(1, 'WAR-SHIPMENT SERIALS', 0, $order_id, 'Serials <br />\n' . implode("<br />\n", $serials));
+                }
 
             }
         }
