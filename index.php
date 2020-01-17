@@ -1342,10 +1342,9 @@ INNER JOIN wooyellowcube_orders
 WHERE wp_woocommerce_order_items.order_item_type="line_item"
 GROUP BY wp_woocommerce_order_items.order_id');
 
-    foreach ($order_items as $row) {
+    foreach ($yc_items as $row) {
       $pending += $row->count;
     }
-
 
     return $pending;
   }
