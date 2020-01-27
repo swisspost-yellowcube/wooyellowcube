@@ -207,7 +207,9 @@ class WooYellowCube
                 $serials = [];
                 $list = $reply->getCustomerOrderList();
                 foreach ($list as $item) {
-                  $serials[] = $item->getArticleNo() . ': ' . $item->getSerialNumbers();
+                  if ($serial = $item->getSerialNumbers()) {
+                    $serials[] = $item->getArticleNo() . ': ' . $serial;
+                  }
                 }
 
                 $track = $header->getPostalShipmentNo();
@@ -229,7 +231,7 @@ class WooYellowCube
 
                 if (!empty($serials)) {
                   // @todo Move serials into line items.
-                  $this->log_create(1, 'WAR-SHIPMENT SERIALS', 0, $order_id, 'Serials <br />\n' . implode("<br />\n", $serials));
+                  $this->log_create(1, 'WAR-SHIPMENT SERIALS', 0, $order_id, "Serials received<br />\n" . implode("<br />\n", $serials));
                 }
 
             }
